@@ -23,7 +23,7 @@ class Tile {
 // 多言語テキスト辞書
 const I18N = {
   ja: {
-    backToGamesClub: '‹ アソビ大全へもどる',
+    backToGamesClub: '‹ CLUB HOUSEへ戻る',
     subtitle: 'タイルを重ねて、伝説の数字へ。',
     selectSize: '盤面サイズを選択',
     startGame: 'ゲームスタート',
@@ -84,7 +84,7 @@ const I18N = {
     resumeGame: 'Resume',
     collection: 'Collection',
     howToPlay: 'How to Play',
-    settings: '⚙️ Settings',
+    settings: '⚙️️ Settings',
     backToTitle: '‹ Title',
     score: 'SCORE',
     best: 'BEST',
@@ -147,7 +147,6 @@ class GameManager {
     this.isGameStarted = false;
     this.pendingAction = null;
 
-    // デフォルト言語を英語 ('en') に設定
     this.currentLang = localStorage.getItem('2048_lang') || 'en';
     this.isMuted = localStorage.getItem('2048_muted') === 'true';
     this.isVibrationEnabled = localStorage.getItem('2048_vibration') !== 'false';
