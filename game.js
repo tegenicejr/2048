@@ -147,11 +147,11 @@ class GameManager {
     this.isGameStarted = false;
     this.pendingAction = null;
 
-    // 設定パラメータ（localStorage連携）
-    this.currentLang = localStorage.getItem('2048_lang') || 'ja';
+    // デフォルト言語を英語 ('en') に設定
+    this.currentLang = localStorage.getItem('2048_lang') || 'en';
     this.isMuted = localStorage.getItem('2048_muted') === 'true';
     this.isVibrationEnabled = localStorage.getItem('2048_vibration') !== 'false';
-    this.animSpeed = localStorage.getItem('2048_speed') || 'normal'; // 'normal' (100ms) or 'fast' (50ms)
+    this.animSpeed = localStorage.getItem('2048_speed') || 'normal';
 
     this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
@@ -248,7 +248,6 @@ class GameManager {
     this.initGameFromSaveOrNew();
   }
 
-  // 多言語テキストの反映
   applyLanguage() {
     const t = I18N[this.currentLang];
     this.startTopBackLink.textContent = t.backToGamesClub;
@@ -272,7 +271,6 @@ class GameManager {
     this.keepPlayingBtn.textContent = t.keepPlaying;
     this.retryBtn.textContent = t.retry;
 
-    // 設定モーダル内テキスト
     document.getElementById('settings-title').textContent = t.settingsTitle;
     document.getElementById('setting-lbl-lang').textContent = t.langLabel;
     document.getElementById('setting-lbl-sound').textContent = t.soundLabel;
@@ -283,12 +281,10 @@ class GameManager {
     this.resetDataBtn.textContent = t.resetData;
     this.closeSettingsBottomBtn.textContent = t.close;
 
-    // コレクション内テキスト
     document.getElementById('collection-modal-title').textContent = t.collectionTitle;
     document.getElementById('collection-modal-desc').textContent = t.collectionDesc;
     this.closeCollectionBottomBtn.textContent = t.close;
 
-    // 遊び方モーダル内テキスト
     document.getElementById('help-modal-title').textContent = t.helpTitle;
     document.getElementById('help-step1-title').textContent = t.step1Title;
     document.getElementById('help-step1-desc').textContent = t.step1Desc;
@@ -301,7 +297,6 @@ class GameManager {
     this.checkSavedGame();
   }
 
-  // 設定モーダルのボタントグル状態UI反映
   updateSettingsUI() {
     this.langJaBtn.classList.toggle('active', this.currentLang === 'ja');
     this.langEnBtn.classList.toggle('active', this.currentLang === 'en');
@@ -580,7 +575,6 @@ class GameManager {
     this.collectionModal.style.display = 'none';
   }
 
-  // 設定モーダルの表示・非表示
   showSettings() {
     this.updateSettingsUI();
     this.settingsModal.style.display = 'flex';
@@ -666,7 +660,7 @@ class GameManager {
       t.confirmResetBtn,
       () => {
         localStorage.clear();
-        this.currentLang = 'ja';
+        this.currentLang = 'en';
         this.isMuted = false;
         this.isVibrationEnabled = true;
         this.animSpeed = 'normal';
@@ -961,7 +955,6 @@ class GameManager {
   initEventListeners() {
     this.soundToggleBtn.addEventListener('click', () => this.toggleSound());
 
-    // スタート画面イベント
     const handleStart = (e) => {
       e.preventDefault();
       this.startGame();
@@ -983,7 +976,6 @@ class GameManager {
     this.collectionBtn.addEventListener('click', handleCollection);
     this.collectionBtn.addEventListener('touchend', handleCollection);
 
-    // 設定ボタン
     const handleSettings = (e) => {
       e.preventDefault();
       this.showSettings();
@@ -991,7 +983,6 @@ class GameManager {
     this.settingsBtn.addEventListener('click', handleSettings);
     this.settingsBtn.addEventListener('touchend', handleSettings);
 
-    // 設定モーダル内の項目変更
     this.langJaBtn.addEventListener('click', () => {
       this.currentLang = 'ja';
       localStorage.setItem('2048_lang', 'ja');
@@ -1041,7 +1032,6 @@ class GameManager {
       if (e.target === this.settingsModal) this.hideSettings();
     });
 
-    // コレクション閉じる
     this.closeCollectionBtn.addEventListener('click', () => this.hideCollection());
     this.closeCollectionBottomBtn.addEventListener('click', () => this.hideCollection());
     this.collectionModal.addEventListener('click', (e) => {
