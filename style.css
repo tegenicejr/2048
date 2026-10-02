@@ -185,7 +185,7 @@ button, a {
 }
 
 /* =========================================
-   メインゲーム画面
+   メインゲーム画面 ヘッダー
 ========================================= */
 .game-container {
   width: 100%;
@@ -195,29 +195,29 @@ button, a {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: min(12px, 1.8vh);
+  gap: min(10px, 1.5vh);
 }
 
 .game-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.header-top {
-  display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 6px;
 }
 
-/* タイトルへ戻るボタン */
+/* 上段ナビバー：タイトルへ戻る ＆ サウンドトグル */
+.header-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .back-link {
   background: none;
   border: none;
   font-size: 13px;
   color: #8f7a66;
   font-weight: 800;
-  margin-bottom: 2px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -229,7 +229,38 @@ button, a {
   opacity: 0.6;
 }
 
-/* 2048タイトルとミニパネルの横並び配置 */
+/* サウンド切り替えトグルボタン */
+.sound-toggle-btn {
+  background: #d8cfc4;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.sound-toggle-btn:active {
+  transform: scale(0.92);
+}
+
+.sound-toggle-btn.muted {
+  background: #c5b8ab;
+  opacity: 0.75;
+}
+
+/* 下段：ロゴ・パネル ＆ 2×2スタッツボックス */
+.header-main-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .title-with-panel {
   display: flex;
   align-items: center;
@@ -237,7 +268,7 @@ button, a {
 }
 
 .title {
-  font-size: clamp(34px, 8.5vw, 50px);
+  font-size: clamp(34px, 8.5vw, 48px);
   font-weight: 900;
   color: #776e65;
   line-height: 0.9;
@@ -245,10 +276,9 @@ button, a {
   text-shadow: 0 2px 0 rgba(255, 255, 255, 0.8);
 }
 
-/* ヘッダーの2048ミニパネル */
 .header-tile-panel {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(180deg, #edc436 0%, #edc22e 100%);
   color: #ffffff;
   font-size: 11px;
@@ -261,43 +291,62 @@ button, a {
   flex-shrink: 0;
 }
 
-.scores-container {
-  display: flex;
-  gap: 8px;
+/* 2×2スタッツグリッド */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
 }
 
 .score-box {
   position: relative;
   background: linear-gradient(180deg, #bbada0 0%, #a8998b 100%);
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 68px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  min-width: 64px;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .score-box .label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   color: #eee4da;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
 .score-box .value {
-  font-size: clamp(16px, 4vw, 20px);
+  font-size: 16px;
   font-weight: 900;
   line-height: 1.1;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+/* 下段（MOVES / TIME）の小窓スタイル */
+.score-box.sub-box {
+  background: linear-gradient(180deg, #aa9a8d 0%, #98887c 100%);
+  padding: 3px 8px;
+}
+
+.score-box.sub-box .label {
+  color: #dcd0c4;
+}
+
+.score-box.sub-box .value {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums; /* 数字の幅を均等にしてガタつき防止 */
+}
+
 .score-addition {
   position: absolute;
-  right: 10px;
-  bottom: 4px;
-  font-size: 13px;
+  right: 6px;
+  bottom: 2px;
+  font-size: 12px;
   font-weight: 900;
   color: #f2613f;
   animation: float-up 600ms ease-out forwards;
@@ -306,9 +355,10 @@ button, a {
 
 @keyframes float-up {
   0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-24px); }
+  100% { opacity: 0; transform: translateY(-20px); }
 }
 
+/* モード切替セグメント */
 .mode-selector {
   display: flex;
   background: #d8cfc4;
@@ -338,6 +388,7 @@ button, a {
   transform: translateY(-1px);
 }
 
+/* 操作ボタン群 */
 .controls {
   display: flex;
   gap: 8px;
@@ -373,11 +424,12 @@ button, a {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
 
+/* 盤面トレイ */
 .board-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  max-height: calc(100dvh - 220px);
+  max-height: calc(100dvh - 228px);
   margin: 0 auto;
   background: linear-gradient(135deg, #bcaea1 0%, #ab9d8f 100%);
   border-radius: 12px;
