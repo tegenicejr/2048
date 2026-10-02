@@ -22,7 +22,7 @@ class Tile {
 
 class GameManager {
   constructor() {
-    this.size = 4;
+    this.size = 4; // デフォルト 4x4
     this.score = 0;
     this.won = false;
     this.over = false;
@@ -130,11 +130,10 @@ class GameManager {
 
   render() {
     this.tileContainer.innerHTML = '';
-    const gap = this.size <= 4 ? 10 : 8;
 
-    // コンテナ幅からピクセル単位で正確に計算
-    const containerWidth = this.tileContainer.offsetWidth || 380;
-    const tileSize = (containerWidth - (this.size - 1) * gap) / this.size;
+    // 隙間とタイル幅のパーセント比率を算出
+    const gapPercent = this.size <= 4 ? 2.8 : 2.0;
+    const tilePercent = (100 - (this.size - 1) * gapPercent) / this.size;
 
     this.tiles.forEach(tile => {
       const el = document.createElement('div');
@@ -142,21 +141,25 @@ class GameManager {
       el.className = `tile tile-${isSuper ? 'super' : tile.value}`;
       el.textContent = tile.value;
 
-      // ピクセルで確実に付与
-      el.style.width = `${tileSize}px`;
-      el.style.height = `${tileSize}px`;
+      // 幅・高さを確実にパーセントで固定
+      el.style.width = `${tilePercent}%`;
+      el.style.height = `${tilePercent}%`;
 
-      // 文字サイズ
-      let fontSize = Math.floor(tileSize * 0.42);
-      if (tile.value >= 100) fontSize = Math.floor(tileSize * 0.35);
-      if (tile.value >= 1000) fontSize = Math.floor(tileSize * 0.28);
+      // 盤面サイズと桁数に応じた文字サイズ
+      let fontSize = 35;
+      if (this.size === 2) fontSize = 54;
+      if (this.size === 5) fontSize = 24;
+      if (this.size === 6) fontSize = 18;
+      if (tile.value >= 100 && this.size >= 4) fontSize = Math.floor(fontSize * 0.8);
+      if (tile.value >= 1000) fontSize = Math.floor(fontSize * 0.7);
       el.style.fontSize = `${fontSize}px`;
 
-      // 位置計算
-      const posX = tile.x * (tileSize + gap);
-      const posY = tile.y * (tileSize + gap);
+      // 物理スライド位置の算出
+      const step = 100 + (gapPercent / tilePercent) * 100;
+      const posX = tile.x * step;
+      const posY = tile.y * step;
 
-      const transformStr = `translate(${posX}px, ${posY}px)`;
+      const transformStr = `translate(${posX}%, ${posY}%)`;
       el.style.setProperty('--pos', transformStr);
       el.style.transform = transformStr;
 
@@ -341,8 +344,6 @@ class GameManager {
         this.initGame();
       });
     });
-
-    window.addEventListener('resize', () => this.render());
 
     window.addEventListener('keydown', (e) => {
       const map = {
