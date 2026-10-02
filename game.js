@@ -3,12 +3,18 @@ class GameManager {
     this.size = 4;
     this.score = 0;
     this.grid = [];
+    this.won = false;
+    this.over = false;
+
     this.tileContainer = document.getElementById('tile-container');
     this.scoreDisplay = document.getElementById('score');
     this.bestScoreDisplay = document.getElementById('best-score');
     this.undoBtn = document.getElementById('undo-btn');
     this.restartBtn = document.getElementById('restart-btn');
     this.rankingBtn = document.getElementById('ranking-btn');
+    this.messageBox = document.getElementById('game-message');
+    this.messageText = document.getElementById('game-message-text');
+    this.retryBtn = document.getElementById('retry-button');
 
     this.initEventListeners();
     this.initGame();
@@ -18,12 +24,30 @@ class GameManager {
   initGame() {
     this.grid = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
     this.score = 0;
+    this.won = false;
+    this.over = false;
+    this.hideMessage();
     StorageManager.clearHistory();
     this.updateScore(0);
     this.bestScoreDisplay.textContent = StorageManager.getBestScore();
     this.addRandomTile();
     this.addRandomTile();
     this.render();
+  }
+
+  hideMessage() {
+    this.messageBox.style.display = 'none';
+    this.messageBox.classList.remove('game-won');
+  }
+
+  showMessage(won) {
+    this.messageText.textContent = won ? 'You Win! 2048達成!' : 'Game Over!';
+    if (won) {
+      this.messageBox.classList.add('game-won');
+    } else {
+      this.messageBox.classList.remove('game-won');
+    }
+    this.messageBox.style.display = 'flex';
   }
 
   // 空きマスにタイル生成
@@ -42,7 +66,7 @@ class GameManager {
     return null;
   }
 
-  // 画面描画（mergedCellsに含まれるタイルだけ確実にバウンド）
+  // 画面描画
   render(mergedCells = [], newCell = null) {
     this.tileContainer.innerHTML = '';
     for (let r = 0; r < this.size; r++) {
@@ -56,7 +80,6 @@ class GameManager {
           tile.style.top = `calc(${r} * (25% + 3px))`;
           tile.style.left = `calc(${c} * (25% + 3px))`;
 
-          // 合体したタイルのみポップ演出
           if (mergedCells.some(m => m.r === r && m.c === c)) {
             tile.classList.add('tile-merged');
           } else if (newCell && newCell.r === r && newCell.c === c) {
@@ -76,8 +99,10 @@ class GameManager {
     this.bestScoreDisplay.textContent = best;
   }
 
-  // 4方向のスライド＆合体を直接計算（座標ズレを完全解消）
+  // 4方向のスライド＆合体
   move(direction) {
+    if (this.over) return;
+
     const previousGrid = JSON.parse(JSON.stringify(this.grid));
     const previousScore = this.score;
 
@@ -85,7 +110,6 @@ class GameManager {
     let scoreGained = 0;
     const mergedCells = [];
 
-    // 移動方向に応じたベクトル
     const vectors = {
       up: { r: -1, c: 0 },
       down: { r: 1, c: 0 },
@@ -94,11 +118,9 @@ class GameManager {
     };
     const vector = vectors[direction];
 
-    // 移動順序（壁に近いマスから順に詰める）
     const rowOrder = direction === 'down' ? [3, 2, 1, 0] : [0, 1, 2, 3];
     const colOrder = direction === 'right' ? [3, 2, 1, 0] : [0, 1, 2, 3];
 
-    // 合体済みフラグ（1ターンに2度合体するのを防ぐ）
     const mergedTracker = Array(this.size).fill(false).map(() => Array(this.size).fill(false));
 
     for (const r of rowOrder) {
@@ -109,34 +131,34 @@ class GameManager {
         let currC = c;
         const val = this.grid[r][c];
 
-        // どこまで滑れるかを探索
         while (true) {
           const nextR = currR + vector.r;
           const nextC = currC + vector.c;
 
-          // 盤面の外に出るならストップ
           if (nextR < 0 || nextR >= this.size || nextC < 0 || nextC >= this.size) break;
 
           const nextVal = this.grid[nextR][nextC];
 
           if (nextVal === 0) {
-            // 空きマスなら進む
             this.grid[nextR][nextC] = val;
             this.grid[currR][currC] = 0;
             currR = nextR;
             currC = nextC;
             moved = true;
           } else if (nextVal === val && !mergedTracker[nextR][nextC]) {
-            // 同じ数字かつ未合体なら合体！
             this.grid[nextR][nextC] = val * 2;
             this.grid[currR][currC] = 0;
             scoreGained += val * 2;
             mergedTracker[nextR][nextC] = true;
-            mergedCells.push({ r: nextR, c: nextC }); // 正確な合体位置を記録
+            mergedCells.push({ r: nextR, c: nextC });
+
+            if (val * 2 === 2048 && !this.won) {
+              this.won = true;
+            }
+
             moved = true;
             break;
           } else {
-            // 別の数字にぶつかったらストップ
             break;
           }
         }
@@ -148,16 +170,33 @@ class GameManager {
       this.updateScore(scoreGained);
       const newCell = this.addRandomTile();
       this.render(mergedCells, newCell);
+
+      // 効果音トリガー
+      if (typeof sounds !== 'undefined') {
+        if (mergedCells.length > 0) {
+          const maxMergedVal = Math.max(...mergedCells.map(m => this.grid[m.r][m.c]));
+          if (maxMergedVal >= 128) {
+            sounds.playBigMerge();
+          } else {
+            sounds.playMerge(maxMergedVal);
+          }
+        } else {
+          sounds.playMove();
+        }
+      }
+
       this.checkGameState();
     }
   }
 
   undo() {
+    if (this.over) return;
     const prevState = StorageManager.popState();
     if (!prevState) return;
     this.grid = prevState.grid;
     this.score = prevState.score;
     this.scoreDisplay.textContent = this.score;
+    this.hideMessage();
     this.render();
   }
 
@@ -166,6 +205,13 @@ class GameManager {
   }
 
   checkGameState() {
+    if (this.won && !this.messageBox.classList.contains('game-won')) {
+      StorageManager.addRanking(this.score, this.getMaxTile());
+      this.showMessage(true);
+      return;
+    }
+
+    // 動けるマスがあるか判定
     for (let r = 0; r < this.size; r++) {
       for (let c = 0; c < this.size; c++) {
         if (this.grid[r][c] === 0) return;
@@ -173,13 +219,19 @@ class GameManager {
         if (r < this.size - 1 && this.grid[r][c] === this.grid[r + 1][c]) return;
       }
     }
+
+    // 手詰まり（ゲームオーバー）
+    this.over = true;
+    if (typeof sounds !== 'undefined') sounds.playGameOver();
     StorageManager.addRanking(this.score, this.getMaxTile());
-    alert(`ゲームオーバー！\nスコア: ${this.score}`);
+    this.showMessage(false);
   }
 
   initEventListeners() {
     this.restartBtn.addEventListener('click', () => this.initGame());
+    this.retryBtn.addEventListener('click', () => this.initGame());
     this.undoBtn.addEventListener('click', () => this.undo());
+
     this.rankingBtn.addEventListener('click', () => {
       const records = StorageManager.getRankings();
       if (records.length === 0) {
