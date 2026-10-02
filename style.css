@@ -79,10 +79,9 @@ body {
   font-weight: 800;
 }
 
-/* 盤面切り替えスイッチ（枠線を排したフラットなピル型） */
 .mode-selector {
   display: flex;
-  background: #ede0c8;
+  background: #d8cfc4;
   padding: 4px;
   border-radius: 8px;
   gap: 6px;
@@ -95,10 +94,9 @@ body {
   padding: 8px 0;
   font-size: 13px;
   font-weight: 800;
-  color: #8f7a66;
+  color: #776e65;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
 }
 
 .mode-btn.active {
@@ -106,7 +104,6 @@ body {
   color: #f2613f;
 }
 
-/* 操作ボタン */
 .controls {
   display: flex;
   gap: 10px;
@@ -122,24 +119,18 @@ body {
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.1s;
 }
 
 .btn.primary {
   background: #f2613f;
 }
 
-.btn:active {
-  opacity: 0.85;
-}
-
-/* 盤面ボード（濃い影や縁取り枠をなくし、柔らかなトーンへ） */
 .board-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   background-color: #bbada0;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 12px;
 }
 
@@ -149,9 +140,8 @@ body {
   height: 100%;
 }
 
-/* 空きマス（枠線・溝の影を完全撤廃し、背景と自然に溶け込むトーンに） */
 .grid-cell {
-  background-color: rgba(238, 228, 218, 0.45);
+  background-color: rgba(238, 228, 218, 0.35);
   border-radius: 6px;
 }
 
@@ -164,7 +154,7 @@ body {
   pointer-events: none;
 }
 
-/* タイルアニメーション */
+/* タイル基本アニメーション */
 .tile-new {
   animation: appear 140ms ease-out forwards;
 }
@@ -180,22 +170,21 @@ body {
 
 @keyframes pop {
   0%   { transform: var(--pos) scale(1); }
-  50%  { transform: var(--pos) scale(1.15); }
+  50%  { transform: var(--pos) scale(1.2); }
   100% { transform: var(--pos) scale(1); }
 }
 
-/* モーダル */
 .game-message {
   display: none;
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background: rgba(238, 228, 218, 0.92);
+  background: rgba(238, 228, 218, 0.9);
   backdrop-filter: blur(4px);
   z-index: 100;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .game-message p {
@@ -206,7 +195,7 @@ body {
 }
 
 .game-message.game-won {
-  background: rgba(237, 194, 46, 0.94);
+  background: rgba(237, 194, 46, 0.92);
 }
 
 .game-message.game-won p {
