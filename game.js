@@ -206,14 +206,14 @@ class GameManager {
     }
   }
 
-  // 盤面変更ボタン押下時の判定（スコア/移動があれば注意書きを表示）
+  // 盤面変更ボタン押下時の判定（「変更すると、」の直後で改行）
   handleModeChangeRequest(newSize) {
     if (newSize === this.size) return;
 
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
         '盤面を変更しますか？',
-        `盤面を${newSize}×${newSize}に変更すると、現在のスコアと進行状況が<br>リセットされます。`,
+        `盤面を${newSize}×${newSize}に変更すると、<br>現在のスコアと進行状況がリセットされます。`,
         '変更する',
         () => this.changeSize(newSize)
       );
@@ -227,7 +227,7 @@ class GameManager {
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
         'タイトルへ戻りますか？',
-        'タイトルに戻ると、現在のスコアと進行状況が<br>リセットされます。',
+        'タイトルに戻ると、<br>現在のスコアと進行状況がリセットされます。',
         'もどる',
         () => {
           this.initGame();
