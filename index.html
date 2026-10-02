@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css?v=confirm_modal">
+  <link rel="stylesheet" href="style.css?v=how_to_play">
 </head>
 <body>
 
@@ -35,7 +35,9 @@
       <button class="mode-btn" data-size="6">6×6</button>
     </div>
 
+    <!-- コントロールボタン：遊び方・1手戻す・やり直す -->
     <div class="controls">
+      <button id="how-to-play-btn" class="btn sub-btn">あそびかた</button>
       <button id="undo-btn" class="btn">1手戻す</button>
       <button id="restart-btn" class="btn primary">やり直す</button>
     </div>
@@ -68,8 +70,62 @@
     </div>
   </div>
 
+  <!-- あそびかた図解モーダル -->
+  <div id="help-modal" class="confirm-overlay">
+    <div class="help-card">
+      <div class="help-header">
+        <div class="help-title">あそびかた</div>
+        <button id="close-help-btn" class="help-close-btn">&times;</button>
+      </div>
+
+      <div class="help-steps">
+        <!-- STEP 1: 動かす -->
+        <div class="help-item">
+          <div class="help-badge">1</div>
+          <div class="help-visual">
+            <span class="swipe-arrow">👆 ⇄ ⇅</span>
+          </div>
+          <div class="help-info">
+            <div class="help-item-title">スワイプでスライド</div>
+            <div class="help-item-desc">上下左右にスワイプ（PCは矢印キー）すると、すべてのタイルが一斉に動きます。</div>
+          </div>
+        </div>
+
+        <!-- STEP 2: 合体 -->
+        <div class="help-item">
+          <div class="help-badge">2</div>
+          <div class="help-visual merge-demo">
+            <div class="demo-tile t-2">2</div>
+            <span class="demo-plus">+</span>
+            <div class="demo-tile t-2">2</div>
+            <span class="demo-arrow">➔</span>
+            <div class="demo-tile t-4">4</div>
+          </div>
+          <div class="help-info">
+            <div class="help-item-title">同じ数字を合体</div>
+            <div class="help-item-desc">同じ数字同士がぶつかると合体して2倍の数字に進化します。</div>
+          </div>
+        </div>
+
+        <!-- STEP 3: 目標 -->
+        <div class="help-item">
+          <div class="help-badge">3</div>
+          <div class="help-visual">
+            <div class="demo-tile t-2048">2048</div>
+          </div>
+          <div class="help-info">
+            <div class="help-item-title">「2048」を目指そう！</div>
+            <div class="help-item-desc">マスが埋まって動かせなくなるとゲームオーバー。2048完成後もエンドレスに挑戦可能です！</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="got-it-btn" class="btn primary help-ok-btn">わかった！</button>
+    </div>
+  </div>
+
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js?v=confirm_modal"></script>
+  <script src="game.js?v=how_to_play"></script>
 </body>
 </html>
