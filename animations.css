@@ -1,4 +1,4 @@
-/* タイル共通スタイル */
+/* タイル共通スタイル（GPUアクセラレーション有効） */
 .tile {
   position: absolute;
   width: calc((100% - 36px) / 4);
@@ -7,54 +7,58 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: bold;
-  font-size: 32px;
+  font-weight: 800;
+  font-size: 35px;
+  line-height: 1;
+  /* 100ミリ秒で滑らかに目的地へスライド */
   transition: transform 100ms ease-in-out;
+  will-change: transform;
 }
 
 /* タイル出現アニメーション */
 .tile-new {
-  animation: appear 180ms ease-in-out;
+  animation: appear 160ms ease-out forwards;
 }
 
 @keyframes appear {
   0% {
     opacity: 0;
-    transform: scale(0);
+    transform: translate(var(--x), var(--y)) scale(0);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: translate(var(--x), var(--y)) scale(1);
   }
 }
 
-/* タイル合体時のバウンド演出 */
+/* 合体バウンド演出 */
 .tile-merged {
-  animation: pop 180ms ease-in-out;
+  z-index: 20;
+  animation: pop 180ms ease-in-out forwards;
 }
 
 @keyframes pop {
   0% {
-    transform: scale(1);
+    transform: translate(var(--x), var(--y)) scale(1);
   }
   50% {
-    transform: scale(1.15);
+    transform: translate(var(--x), var(--y)) scale(1.22);
   }
   100% {
-    transform: scale(1);
+    transform: translate(var(--x), var(--y)) scale(1);
   }
 }
 
-/* タイルごとの配色（公式カラーパレット基準） */
+/* タイルカラー & フォントサイズ微調整（数字が大きくてもはみ出さない） */
 .tile-2 { background: #eee4da; color: #776e65; }
 .tile-4 { background: #ede0c8; color: #776e65; }
 .tile-8 { background: #f2b179; color: #f9f6f2; }
 .tile-16 { background: #f59563; color: #f9f6f2; }
 .tile-32 { background: #f67c5f; color: #f9f6f2; }
 .tile-64 { background: #f65e3b; color: #f9f6f2; }
-.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 26px; }
-.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 26px; }
-.tile-512 { background: #edc850; color: #f9f6f2; font-size: 26px; }
-.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 20px; }
-.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 10px rgba(237, 194, 46, 0.5); }
-.tile-super { background: #3c3a32; color: #f9f6f2; font-size: 16px; }
+.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 30px; box-shadow: 0 0 12px rgba(243, 215, 116, 0.4); }
+.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 30px; box-shadow: 0 0 16px rgba(243, 215, 116, 0.5); }
+.tile-512 { background: #edc850; color: #f9f6f2; font-size: 30px; box-shadow: 0 0 20px rgba(243, 215, 116, 0.6); }
+.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 22px; box-shadow: 0 0 25px rgba(243, 215, 116, 0.7); }
+.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 22px; box-shadow: 0 0 30px rgba(237, 194, 46, 0.85); }
+.tile-super { background: #3c3a32; color: #f9f6f2; font-size: 18px; }
