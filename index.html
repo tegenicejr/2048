@@ -28,27 +28,31 @@
       </div>
     </header>
 
-    <!-- コントロールボタン（2つに集約してすっきり） -->
+    <!-- 盤面サイズ切り替えセレクター -->
+    <div class="mode-selector">
+      <button class="mode-btn" data-size="2">2×2</button>
+      <button class="mode-btn active" data-size="4">4×4</button>
+      <button class="mode-btn" data-size="5">5×5</button>
+      <button class="mode-btn" data-size="6">6×6</button>
+    </div>
+
+    <!-- コントロールボタン -->
     <div class="controls">
       <button id="undo-btn" class="btn">1手戻す</button>
       <button id="restart-btn" class="btn primary">やり直す</button>
     </div>
 
-    <!-- 4x4 ゲーム盤面 -->
+    <!-- 可変ゲーム盤面 -->
     <div class="board-wrapper">
-      <div id="grid-container" class="grid-container">
-        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
-        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
-        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
-        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
-      </div>
+      <div id="grid-container" class="grid-container"></div>
       <div id="tile-container" class="tile-container"></div>
 
       <!-- ゲームオーバー/クリア用モーダル -->
       <div id="game-message" class="game-message">
         <p id="game-message-text">Game Over!</p>
         <div class="lower">
-          <button id="retry-button" class="btn primary">もう一度遊ぶ</button>
+          <button id="keep-playing-button" class="btn">続ける</button>
+          <button id="retry-button" class="btn primary">やり直す</button>
         </div>
       </div>
     </div>
