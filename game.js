@@ -84,7 +84,7 @@ const I18N = {
     resumeGame: 'Resume',
     collection: 'Collection',
     howToPlay: 'How to Play',
-    settings: '⚙️️ Settings',
+    settings: '⚙️ Settings',
     backToTitle: '‹ Title',
     score: 'SCORE',
     best: 'BEST',
@@ -269,6 +269,9 @@ class GameManager {
     this.shareScoreBtn.textContent = t.post;
     this.keepPlayingBtn.textContent = t.keepPlaying;
     this.retryBtn.textContent = t.retry;
+
+    // 確認モーダルのキャンセルボタンも即座に同期
+    this.cancelRestartBtn.textContent = t.cancel;
 
     document.getElementById('settings-title').textContent = t.settingsTitle;
     document.getElementById('setting-lbl-lang').textContent = t.langLabel;
@@ -587,6 +590,7 @@ class GameManager {
     this.confirmTitle.textContent = title;
     this.confirmDesc.innerHTML = desc;
     this.confirmRestartBtn.textContent = confirmText;
+    this.cancelRestartBtn.textContent = I18N[this.currentLang].cancel;
     this.pendingAction = action;
     this.confirmModal.style.display = 'flex';
   }
