@@ -125,7 +125,6 @@ body {
   background: #f2613f;
 }
 
-/* 盤面 */
 .board-wrapper {
   position: relative;
   width: 100%;
@@ -155,33 +154,7 @@ body {
   pointer-events: none;
 }
 
-/* タイル本体 */
-.tile {
-  position: absolute;
-  border-radius: 6px;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  font-weight: 800;
-  line-height: 1;
-  transition: transform 100ms ease-in-out;
-  will-change: transform;
-}
-
-/* タイル配色（!importantで確実に着色） */
-.tile-2    { background-color: #eee4da !important; color: #776e65 !important; }
-.tile-4    { background-color: #ede0c8 !important; color: #776e65 !important; }
-.tile-8    { background-color: #f2b179 !important; color: #f9f6f2 !important; }
-.tile-16   { background-color: #f59563 !important; color: #f9f6f2 !important; }
-.tile-32   { background-color: #f67c5f !important; color: #f9f6f2 !important; }
-.tile-64   { background-color: #f65e3b !important; color: #f9f6f2 !important; }
-.tile-128  { background-color: #edcf72 !important; color: #f9f6f2 !important; box-shadow: 0 0 10px rgba(243, 215, 116, 0.4); }
-.tile-256  { background-color: #edcc61 !important; color: #f9f6f2 !important; box-shadow: 0 0 14px rgba(243, 215, 116, 0.5); }
-.tile-512  { background-color: #edc850 !important; color: #f9f6f2 !important; box-shadow: 0 0 18px rgba(243, 215, 116, 0.6); }
-.tile-1024 { background-color: #edc53f !important; color: #f9f6f2 !important; box-shadow: 0 0 22px rgba(243, 215, 116, 0.7); }
-.tile-2048 { background-color: #edc22e !important; color: #f9f6f2 !important; box-shadow: 0 0 26px rgba(237, 194, 46, 0.85); }
-.tile-super{ background-color: #3c3a32 !important; color: #f9f6f2 !important; }
-
+/* タイル基本アニメーション */
 .tile-new {
   animation: appear 140ms ease-out forwards;
 }
@@ -201,7 +174,6 @@ body {
   100% { transform: var(--pos) scale(1); }
 }
 
-/* モーダル */
 .game-message {
   display: none;
   position: absolute;
