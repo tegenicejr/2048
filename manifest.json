@@ -1,0 +1,18 @@
+{
+  "name": "2048 - Games Clubhouse",
+  "short_name": "2048",
+  "description": "Merge the tiles and reach 2048!",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbf9f4",
+  "theme_color": "#edc22e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
