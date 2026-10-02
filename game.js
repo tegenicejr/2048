@@ -20,6 +20,118 @@ class Tile {
   }
 }
 
+// 多言語テキスト辞書
+const I18N = {
+  ja: {
+    backToGamesClub: '‹ アソビ大全へもどる',
+    subtitle: 'タイルを重ねて、伝説の数字へ。',
+    selectSize: '盤面サイズを選択',
+    startGame: 'ゲームスタート',
+    resumeGame: 'つづきから',
+    collection: 'コレクション',
+    howToPlay: 'あそびかた',
+    settings: '⚙️ 設定',
+    backToTitle: '‹ タイトルへ',
+    score: 'SCORE',
+    best: 'BEST',
+    moves: 'MOVES',
+    time: 'TIME',
+    undo: '1手戻す',
+    restart: 'やり直す',
+    post: 'ポストする',
+    keepPlaying: '続ける',
+    retry: 'もう一度',
+    close: 'とじる',
+    understood: 'わかった！',
+    winMsg: 'You Win! 2048達成!',
+    gameOverMsg: 'Game Over!',
+    maxTile: '最高タイル',
+    settingsTitle: '⚙️ 設定',
+    langLabel: '言語 (Language)',
+    soundLabel: '効果音 (Sound FX)',
+    vibLabel: '振動 (Vibration)',
+    speedLabel: '速度 (Speed)',
+    speedNormal: '通常',
+    speedFast: '高速',
+    resetData: 'データ初期化',
+    collectionTitle: 'タイルコレクション',
+    collectionDesc: 'ゲーム内で合体させて到達したタイルが解放されます。',
+    helpTitle: 'あそびかた',
+    step1Title: 'スワイプでスライド',
+    step1Desc: '上下左右にスワイプ（PCは矢印キー）すると、すべてのタイルが一斉に動きます。',
+    step2Title: '同じ数字を合体',
+    step2Desc: '同じ数字同士がぶつかると合体して2倍の数字に進化します。',
+    step3Title: '「2048」を目指そう！',
+    step3Desc: 'マスが埋まって動かせなくなるとゲームオーバー。2048完成後もエンドレスに挑戦可能です！',
+    confirmRestartTitle: 'やり直しますか？',
+    confirmRestartDesc: '現在のスコアと盤面の進行状況が<br>リセットされます。',
+    confirmModeTitle: '盤面を変更しますか？',
+    confirmModeDesc: (size) => `盤面を${size}×${size}に変更すると、<br>現在のスコアと進行状況がリセットされます。`,
+    confirmTitleBackTitle: 'タイトルへ戻りますか？',
+    confirmTitleBackDesc: 'タイトルに戻ると、<br>現在の進行状況は自動保存されます。',
+    confirmResetDataTitle: 'データを初期化しますか？',
+    confirmResetDataDesc: 'ハイスコアやコレクションの解放状況がすべて消去されます。元には戻せません。',
+    confirmBtn: '変更する',
+    confirmBackBtn: 'もどる',
+    confirmResetBtn: '初期化する',
+    cancel: 'キャンセル'
+  },
+  en: {
+    backToGamesClub: '‹ Back to Clubhouse',
+    subtitle: 'Merge the tiles to reach the legend.',
+    selectSize: 'Select Board Size',
+    startGame: 'Start Game',
+    resumeGame: 'Resume',
+    collection: 'Collection',
+    howToPlay: 'How to Play',
+    settings: '⚙️ Settings',
+    backToTitle: '‹ Title',
+    score: 'SCORE',
+    best: 'BEST',
+    moves: 'MOVES',
+    time: 'TIME',
+    undo: 'Undo',
+    restart: 'Restart',
+    post: 'Share on X',
+    keepPlaying: 'Keep Going',
+    retry: 'Retry',
+    close: 'Close',
+    understood: 'Got It!',
+    winMsg: 'You Win! 2048 Reached!',
+    gameOverMsg: 'Game Over!',
+    maxTile: 'Max Tile',
+    settingsTitle: '⚙️ Settings',
+    langLabel: 'Language',
+    soundLabel: 'Sound FX',
+    vibLabel: 'Vibration',
+    speedLabel: 'Speed',
+    speedNormal: 'Normal',
+    speedFast: 'Fast',
+    resetData: 'Reset Data',
+    collectionTitle: 'Tile Collection',
+    collectionDesc: 'Tiles reached during gameplay will be unlocked here.',
+    helpTitle: 'How to Play',
+    step1Title: 'Swipe to Move',
+    step1Desc: 'Swipe in any direction (or use Arrow keys on PC) to slide all tiles.',
+    step2Title: 'Merge Tiles',
+    step2Desc: 'When two tiles with the same number touch, they merge into one with double value.',
+    step3Title: 'Reach 2048!',
+    step3Desc: 'When no moves are possible, game is over. Reach 2048 and continue into endless mode!',
+    confirmRestartTitle: 'Restart Game?',
+    confirmRestartDesc: 'Your current score and board progress will be reset.',
+    confirmModeTitle: 'Change Board Size?',
+    confirmModeDesc: (size) => `Changing to ${size}×${size} will reset your current score and progress.`,
+    confirmTitleBackTitle: 'Return to Title?',
+    confirmTitleBackDesc: 'Your current board progress will be automatically saved.',
+    confirmResetDataTitle: 'Reset All Data?',
+    confirmResetDataDesc: 'Your best scores and unlocked tiles will be permanently deleted.',
+    confirmBtn: 'Confirm',
+    confirmBackBtn: 'Back',
+    confirmResetBtn: 'Reset',
+    cancel: 'Cancel'
+  }
+};
+
 class GameManager {
   constructor() {
     this.size = 4;
@@ -35,7 +147,11 @@ class GameManager {
     this.isGameStarted = false;
     this.pendingAction = null;
 
+    // 設定パラメータ（localStorage連携）
+    this.currentLang = localStorage.getItem('2048_lang') || 'ja';
     this.isMuted = localStorage.getItem('2048_muted') === 'true';
+    this.isVibrationEnabled = localStorage.getItem('2048_vibration') !== 'false';
+    this.animSpeed = localStorage.getItem('2048_speed') || 'normal'; // 'normal' (100ms) or 'fast' (50ms)
 
     this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
@@ -57,11 +173,29 @@ class GameManager {
 
     // スタート画面＆タイトルへ戻る
     this.startScreen = document.getElementById('start-screen');
+    this.startTopBackLink = document.getElementById('start-top-back-link');
+    this.startSubtitle = document.getElementById('start-subtitle');
+    this.startModeLabel = document.getElementById('start-mode-label');
     this.startGameBtn = document.getElementById('start-game-btn');
     this.startHelpBtn = document.getElementById('start-help-btn');
     this.collectionBtn = document.getElementById('collection-btn');
+    this.settingsBtn = document.getElementById('settings-btn');
     this.startModeButtons = document.querySelectorAll('.start-mode-btn');
     this.backToTitleBtn = document.getElementById('back-to-title-btn');
+
+    // 設定モーダル
+    this.settingsModal = document.getElementById('settings-modal');
+    this.closeSettingsBtn = document.getElementById('close-settings-btn');
+    this.closeSettingsBottomBtn = document.getElementById('close-settings-bottom-btn');
+    this.langJaBtn = document.getElementById('lang-ja-btn');
+    this.langEnBtn = document.getElementById('lang-en-btn');
+    this.soundOnBtn = document.getElementById('sound-on-btn');
+    this.soundOffBtn = document.getElementById('sound-off-btn');
+    this.vibOnBtn = document.getElementById('vib-on-btn');
+    this.vibOffBtn = document.getElementById('vib-off-btn');
+    this.speedNormalBtn = document.getElementById('speed-normal-btn');
+    this.speedFastBtn = document.getElementById('speed-fast-btn');
+    this.resetDataBtn = document.getElementById('reset-data-btn');
 
     // コレクションモーダル
     this.collectionModal = document.getElementById('collection-modal');
@@ -106,21 +240,91 @@ class GameManager {
     this.isMoving = false;
     this.hasMoved = false;
 
+    this.applyLanguage();
     this.updateSoundButtonState();
+    this.updateSettingsUI();
     this.checkSavedGame();
     this.initEventListeners();
     this.initGameFromSaveOrNew();
   }
 
-  // 保存データの確認とスタートボタン文言の切り替え
+  // 多言語テキストの反映
+  applyLanguage() {
+    const t = I18N[this.currentLang];
+    this.startTopBackLink.textContent = t.backToGamesClub;
+    this.startSubtitle.textContent = t.subtitle;
+    this.startModeLabel.textContent = t.selectSize;
+    this.collectionBtn.textContent = t.collection;
+    this.startHelpBtn.textContent = t.howToPlay;
+    this.settingsBtn.textContent = t.settings;
+    this.backToTitleBtn.textContent = t.backToTitle;
+
+    document.getElementById('label-score').textContent = t.score;
+    document.getElementById('label-best').textContent = t.best;
+    document.getElementById('label-moves').textContent = t.moves;
+    document.getElementById('label-time').textContent = t.time;
+
+    this.howToPlayBtn.textContent = t.howToPlay;
+    this.undoBtn.textContent = t.undo;
+    this.restartBtn.textContent = t.restart;
+
+    this.shareScoreBtn.textContent = t.post;
+    this.keepPlayingBtn.textContent = t.keepPlaying;
+    this.retryBtn.textContent = t.retry;
+
+    // 設定モーダル内テキスト
+    document.getElementById('settings-title').textContent = t.settingsTitle;
+    document.getElementById('setting-lbl-lang').textContent = t.langLabel;
+    document.getElementById('setting-lbl-sound').textContent = t.soundLabel;
+    document.getElementById('setting-lbl-vibration').textContent = t.vibLabel;
+    document.getElementById('setting-lbl-speed').textContent = t.speedLabel;
+    this.speedNormalBtn.textContent = t.speedNormal;
+    this.speedFastBtn.textContent = t.speedFast;
+    this.resetDataBtn.textContent = t.resetData;
+    this.closeSettingsBottomBtn.textContent = t.close;
+
+    // コレクション内テキスト
+    document.getElementById('collection-modal-title').textContent = t.collectionTitle;
+    document.getElementById('collection-modal-desc').textContent = t.collectionDesc;
+    this.closeCollectionBottomBtn.textContent = t.close;
+
+    // 遊び方モーダル内テキスト
+    document.getElementById('help-modal-title').textContent = t.helpTitle;
+    document.getElementById('help-step1-title').textContent = t.step1Title;
+    document.getElementById('help-step1-desc').textContent = t.step1Desc;
+    document.getElementById('help-step2-title').textContent = t.step2Title;
+    document.getElementById('help-step2-desc').textContent = t.step2Desc;
+    document.getElementById('help-step3-title').textContent = t.step3Title;
+    document.getElementById('help-step3-desc').textContent = t.step3Desc;
+    this.gotItBtn.textContent = t.understood;
+
+    this.checkSavedGame();
+  }
+
+  // 設定モーダルのボタントグル状態UI反映
+  updateSettingsUI() {
+    this.langJaBtn.classList.toggle('active', this.currentLang === 'ja');
+    this.langEnBtn.classList.toggle('active', this.currentLang === 'en');
+
+    this.soundOnBtn.classList.toggle('active', !this.isMuted);
+    this.soundOffBtn.classList.toggle('active', this.isMuted);
+
+    this.vibOnBtn.classList.toggle('active', this.isVibrationEnabled);
+    this.vibOffBtn.classList.toggle('active', !this.isVibrationEnabled);
+
+    this.speedNormalBtn.classList.toggle('active', this.animSpeed === 'normal');
+    this.speedFastBtn.classList.toggle('active', this.animSpeed === 'fast');
+  }
+
   checkSavedGame() {
     const saved = StorageManager.loadCurrentGame();
+    const t = I18N[this.currentLang];
     if (saved && !saved.over) {
-      this.startGameBtn.textContent = 'つづきから';
+      this.startGameBtn.textContent = t.resumeGame;
       this.size = saved.size || 4;
       this.syncModeButtons(this.size);
     } else {
-      this.startGameBtn.textContent = 'ゲームスタート';
+      this.startGameBtn.textContent = t.startGame;
     }
   }
 
@@ -141,10 +345,11 @@ class GameManager {
       this.soundToggleBtn.textContent = '🔊';
       this.soundToggleBtn.classList.remove('muted');
     }
+    this.updateSettingsUI();
   }
 
-  toggleSound() {
-    this.isMuted = !this.isMuted;
+  toggleSound(forceVal = null) {
+    this.isMuted = forceVal !== null ? forceVal : !this.isMuted;
     localStorage.setItem('2048_muted', this.isMuted);
     this.updateSoundButtonState();
     this.triggerHaptic('light');
@@ -202,7 +407,6 @@ class GameManager {
     }
   }
 
-  // オートセーブからの復旧または新規開始
   initGameFromSaveOrNew() {
     const saved = StorageManager.loadCurrentGame();
     if (saved && !saved.over) {
@@ -244,6 +448,7 @@ class GameManager {
     this.hideConfirm();
     this.hideHelp();
     this.hideCollection();
+    this.hideSettings();
     StorageManager.clearHistory();
     StorageManager.clearCurrentGame();
     this.updateScore(0, false);
@@ -254,7 +459,6 @@ class GameManager {
     this.render();
   }
 
-  // オートセーブ実行
   autoSave() {
     if (this.over) {
       StorageManager.clearCurrentGame();
@@ -282,6 +486,7 @@ class GameManager {
     this.hideConfirm();
     this.hideHelp();
     this.hideCollection();
+    this.hideSettings();
   }
 
   startGame() {
@@ -314,33 +519,34 @@ class GameManager {
   showMessage(won) {
     this.stopTimer();
     StorageManager.clearCurrentGame();
+    const t = I18N[this.currentLang];
 
     const maxTile = this.getMaxTileValue();
-    this.messageStatsSummary.textContent = `SCORE: ${this.score} | 最高タイル: ${maxTile} | 手数: ${this.moves} | タイム: ${this.timeDisplay.textContent}`;
+    this.messageStatsSummary.textContent = `${t.score}: ${this.score} | ${t.maxTile}: ${maxTile} | ${t.moves}: ${this.moves} | ${t.time}: ${this.timeDisplay.textContent}`;
 
     if (won) {
-      this.messageText.textContent = 'You Win! 2048達成!';
+      this.messageText.textContent = t.winMsg;
       this.messageBox.classList.add('game-won');
       this.keepPlayingBtn.style.display = 'inline-block';
     } else {
-      this.messageText.textContent = 'Game Over!';
+      this.messageText.textContent = t.gameOverMsg;
       this.messageBox.classList.remove('game-won');
       this.keepPlayingBtn.style.display = 'none';
     }
     this.messageBox.style.display = 'flex';
   }
 
-  // X（旧Twitter）への共有
   shareResult() {
     const maxTile = this.getMaxTileValue();
-    const isWin = this.won ? '【2048達成！】' : '【ゲームオーバー】';
-    const text = `${isWin} 2048をプレイしたよ！\nスコア: ${this.score}\n盤面: ${this.size}×${this.size}\n最高タイル: ${maxTile}\n手数: ${this.moves}手 | タイム: ${this.timeDisplay.textContent}\n#2048 #GamesClubhouse\n`;
+    const isWin = this.won ? (this.currentLang === 'ja' ? '【2048達成！】' : '【2048 CLEARED!】') : (this.currentLang === 'ja' ? '【ゲームオーバー】' : '【GAME OVER】');
+    const text = this.currentLang === 'ja'
+      ? `${isWin} 2048をプレイしたよ！\nスコア: ${this.score}\n盤面: ${this.size}×${this.size}\n最高タイル: ${maxTile}\n手数: ${this.moves}手 | タイム: ${this.timeDisplay.textContent}\n#2048 #GamesClubhouse\n`
+      : `${isWin} Just played 2048!\nScore: ${this.score}\nBoard: ${this.size}×${this.size}\nMax Tile: ${maxTile}\nMoves: ${this.moves} | Time: ${this.timeDisplay.textContent}\n#2048 #GamesClubhouse\n`;
     const url = 'https://tegenicejr.github.io/2048/';
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     window.open(shareUrl, '_blank');
   }
 
-  // タイルコレクションのレンダリング
   renderCollection() {
     this.collectionGrid.innerHTML = '';
     const unlocked = StorageManager.getUnlockedTiles();
@@ -374,10 +580,20 @@ class GameManager {
     this.collectionModal.style.display = 'none';
   }
 
+  // 設定モーダルの表示・非表示
+  showSettings() {
+    this.updateSettingsUI();
+    this.settingsModal.style.display = 'flex';
+  }
+
+  hideSettings() {
+    this.settingsModal.style.display = 'none';
+  }
+
   showConfirm(title, desc, confirmText, action) {
-    this.confirmTitle.textContent = title || 'やり直しますか？';
-    this.confirmDesc.innerHTML = desc || '現在のスコアと盤面の進行状況が<br>リセットされます。';
-    this.confirmRestartBtn.textContent = confirmText || 'やり直す';
+    this.confirmTitle.textContent = title;
+    this.confirmDesc.innerHTML = desc;
+    this.confirmRestartBtn.textContent = confirmText;
     this.pendingAction = action;
     this.confirmModal.style.display = 'flex';
   }
@@ -396,11 +612,12 @@ class GameManager {
   }
 
   handleRestartRequest() {
+    const t = I18N[this.currentLang];
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
-        'やり直しますか？',
-        '現在のスコアと盤面の進行状況が<br>リセットされます。',
-        'やり直す',
+        t.confirmRestartTitle,
+        t.confirmRestartDesc,
+        t.restart,
         () => this.initGame()
       );
     } else {
@@ -410,12 +627,13 @@ class GameManager {
 
   handleModeChangeRequest(newSize) {
     if (newSize === this.size) return;
+    const t = I18N[this.currentLang];
 
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
-        '盤面を変更しますか？',
-        `盤面を${newSize}×${newSize}に変更すると、<br>現在のスコアと進行状況がリセットされます。`,
-        '変更する',
+        t.confirmModeTitle,
+        t.confirmModeDesc(newSize),
+        t.confirmBtn,
         () => this.changeSize(newSize)
       );
     } else {
@@ -424,11 +642,12 @@ class GameManager {
   }
 
   handleBackToTitleRequest() {
+    const t = I18N[this.currentLang];
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
-        'タイトルへ戻りますか？',
-        'タイトルに戻ると、<br>現在の進行状況は自動保存されます。',
-        'もどる',
+        t.confirmTitleBackTitle,
+        t.confirmTitleBackDesc,
+        t.confirmBackBtn,
         () => {
           this.autoSave();
           this.showStartScreen();
@@ -437,6 +656,27 @@ class GameManager {
     } else {
       this.showStartScreen();
     }
+  }
+
+  handleResetDataRequest() {
+    const t = I18N[this.currentLang];
+    this.showConfirm(
+      t.confirmResetDataTitle,
+      t.confirmResetDataDesc,
+      t.confirmResetBtn,
+      () => {
+        localStorage.clear();
+        this.currentLang = 'ja';
+        this.isMuted = false;
+        this.isVibrationEnabled = true;
+        this.animSpeed = 'normal';
+        this.hideSettings();
+        this.applyLanguage();
+        this.updateSettingsUI();
+        this.initGame();
+        this.showStartScreen();
+      }
+    );
   }
 
   getGridState() {
@@ -466,6 +706,7 @@ class GameManager {
   }
 
   triggerHaptic(type = 'light') {
+    if (!this.isVibrationEnabled) return;
     if ('vibrate' in navigator) {
       if (type === 'light') navigator.vibrate(8);
       else if (type === 'medium') navigator.vibrate([12, 30, 15]);
@@ -478,6 +719,7 @@ class GameManager {
 
     const gapPercent = this.size <= 4 ? 2.8 : 2.0;
     const tilePercent = (100 - (this.size - 1) * gapPercent) / this.size;
+    const transitionDuration = this.animSpeed === 'fast' ? '50ms' : '100ms';
 
     this.tiles.forEach(tile => {
       const el = document.createElement('div');
@@ -502,7 +744,7 @@ class GameManager {
       el.style.alignItems = 'center';
       el.style.fontWeight = '900';
       el.style.lineHeight = '1';
-      el.style.transition = 'transform 100ms ease-in-out';
+      el.style.transition = `transform ${transitionDuration} ease-in-out`;
       el.style.willChange = 'transform';
 
       let fontSize = 36;
@@ -556,7 +798,8 @@ class GameManager {
       !this.isGameStarted ||
       (this.confirmModal && this.confirmModal.style.display === 'flex') ||
       (this.helpModal && this.helpModal.style.display === 'flex') ||
-      (this.collectionModal && this.collectionModal.style.display === 'flex')
+      (this.collectionModal && this.collectionModal.style.display === 'flex') ||
+      (this.settingsModal && this.settingsModal.style.display === 'flex')
     );
   }
 
@@ -614,7 +857,6 @@ class GameManager {
             scoreGained += target.value;
             moved = true;
 
-            // コレクションへの解放
             StorageManager.unlockTile(target.value);
 
             if (target.value === 2048 && !this.won) this.won = true;
@@ -653,15 +895,17 @@ class GameManager {
         this.playSound('move');
       }
 
+      const moveDelay = this.animSpeed === 'fast' ? 55 : 105;
+
       setTimeout(() => {
         StorageManager.saveState(previousGrid, previousScore);
         this.updateScore(scoreGained);
         this.addRandomTile();
         this.render();
-        this.autoSave(); // 自動保存
+        this.autoSave();
         this.checkGameState();
         this.isMoving = false;
-      }, 105);
+      }, moveDelay);
     }
   }
 
@@ -717,7 +961,7 @@ class GameManager {
   initEventListeners() {
     this.soundToggleBtn.addEventListener('click', () => this.toggleSound());
 
-    // スタート画面
+    // スタート画面イベント
     const handleStart = (e) => {
       e.preventDefault();
       this.startGame();
@@ -732,7 +976,6 @@ class GameManager {
     this.startHelpBtn.addEventListener('click', handleStartHelp);
     this.startHelpBtn.addEventListener('touchend', handleStartHelp);
 
-    // コレクションボタン
     const handleCollection = (e) => {
       e.preventDefault();
       this.showCollection();
@@ -740,6 +983,65 @@ class GameManager {
     this.collectionBtn.addEventListener('click', handleCollection);
     this.collectionBtn.addEventListener('touchend', handleCollection);
 
+    // 設定ボタン
+    const handleSettings = (e) => {
+      e.preventDefault();
+      this.showSettings();
+    };
+    this.settingsBtn.addEventListener('click', handleSettings);
+    this.settingsBtn.addEventListener('touchend', handleSettings);
+
+    // 設定モーダル内の項目変更
+    this.langJaBtn.addEventListener('click', () => {
+      this.currentLang = 'ja';
+      localStorage.setItem('2048_lang', 'ja');
+      this.applyLanguage();
+      this.updateSettingsUI();
+    });
+    this.langEnBtn.addEventListener('click', () => {
+      this.currentLang = 'en';
+      localStorage.setItem('2048_lang', 'en');
+      this.applyLanguage();
+      this.updateSettingsUI();
+    });
+
+    this.soundOnBtn.addEventListener('click', () => this.toggleSound(false));
+    this.soundOffBtn.addEventListener('click', () => this.toggleSound(true));
+
+    this.vibOnBtn.addEventListener('click', () => {
+      this.isVibrationEnabled = true;
+      localStorage.setItem('2048_vibration', 'true');
+      this.updateSettingsUI();
+      this.triggerHaptic('light');
+    });
+    this.vibOffBtn.addEventListener('click', () => {
+      this.isVibrationEnabled = false;
+      localStorage.setItem('2048_vibration', 'false');
+      this.updateSettingsUI();
+    });
+
+    this.speedNormalBtn.addEventListener('click', () => {
+      this.animSpeed = 'normal';
+      localStorage.setItem('2048_speed', 'normal');
+      this.updateSettingsUI();
+      this.render();
+    });
+    this.speedFastBtn.addEventListener('click', () => {
+      this.animSpeed = 'fast';
+      localStorage.setItem('2048_speed', 'fast');
+      this.updateSettingsUI();
+      this.render();
+    });
+
+    this.resetDataBtn.addEventListener('click', () => this.handleResetDataRequest());
+
+    this.closeSettingsBtn.addEventListener('click', () => this.hideSettings());
+    this.closeSettingsBottomBtn.addEventListener('click', () => this.hideSettings());
+    this.settingsModal.addEventListener('click', (e) => {
+      if (e.target === this.settingsModal) this.hideSettings();
+    });
+
+    // コレクション閉じる
     this.closeCollectionBtn.addEventListener('click', () => this.hideCollection());
     this.closeCollectionBottomBtn.addEventListener('click', () => this.hideCollection());
     this.collectionModal.addEventListener('click', (e) => {
@@ -756,7 +1058,6 @@ class GameManager {
     });
 
     this.backToTitleBtn.addEventListener('click', () => this.handleBackToTitleRequest());
-
     this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
     this.retryBtn.addEventListener('click', () => this.initGame());
     this.shareScoreBtn.addEventListener('click', () => this.shareResult());
