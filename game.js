@@ -28,6 +28,7 @@ class GameManager {
     this.over = false;
     this.keepPlaying = false;
     this.tiles = [];
+    this.isGameStarted = false; // スタート画面の表示制御
 
     this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
@@ -40,6 +41,12 @@ class GameManager {
     this.retryBtn = document.getElementById('retry-button');
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
+
+    // スタート画面の要素
+    this.startScreen = document.getElementById('start-screen');
+    this.startGameBtn = document.getElementById('start-game-btn');
+    this.startHelpBtn = document.getElementById('start-help-btn');
+    this.startModeButtons = document.querySelectorAll('.start-mode-btn');
 
     // やり直し確認モーダル
     this.confirmModal = document.getElementById('confirm-modal');
@@ -72,6 +79,7 @@ class GameManager {
     };
 
     this.isMoving = false;
+    this.hasMoved = false;
     this.initEventListeners();
     this.initGame();
   }
@@ -98,6 +106,7 @@ class GameManager {
     this.over = false;
     this.keepPlaying = false;
     this.isMoving = false;
+    this.hasMoved = false;
     this.hideMessage();
     this.hideConfirm();
     this.hideHelp();
@@ -108,6 +117,30 @@ class GameManager {
     this.addRandomTile();
     this.addRandomTile();
     this.render();
+  }
+
+  // スタート画面を閉じてゲームプレイを開始
+  startGame() {
+    this.isGameStarted = true;
+    this.startScreen.classList.add('hidden');
+    this.triggerHaptic('light');
+    if (typeof sounds !== 'undefined') sounds.playMove();
+  }
+
+  // 盤面サイズ同期
+  changeSize(newSize) {
+    if (newSize === this.size) return;
+    this.size = newSize;
+
+    // ゲーム内とスタート画面のボタン両方を同期
+    this.modeButtons.forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.size) === newSize);
+    });
+    this.startModeButtons.forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.size) === newSize);
+    });
+
+    this.initGame();
   }
 
   hideMessage() {
@@ -136,7 +169,6 @@ class GameManager {
     this.confirmModal.style.display = 'none';
   }
 
-  // あそびかたモーダルの制御
   showHelp() {
     this.helpModal.style.display = 'flex';
   }
@@ -146,7 +178,7 @@ class GameManager {
   }
 
   handleRestartRequest() {
-    if (this.score > 0 && !this.over) {
+    if (this.score > 0 || this.hasMoved) {
       this.showConfirm();
     } else {
       this.initGame();
@@ -265,8 +297,9 @@ class GameManager {
 
   isAnyModalOpen() {
     return (
-      this.confirmModal.style.display === 'flex' ||
-      this.helpModal.style.display === 'flex'
+      !this.isGameStarted ||
+      (this.confirmModal && this.confirmModal.style.display === 'flex') ||
+      (this.helpModal && this.helpModal.style.display === 'flex')
     );
   }
 
@@ -342,6 +375,7 @@ class GameManager {
 
     if (moved) {
       this.isMoving = true;
+      this.hasMoved = true;
       this.tiles = nextTiles;
       this.render();
 
@@ -411,11 +445,20 @@ class GameManager {
   }
 
   initEventListeners() {
+    // スタート画面のイベント
+    this.startGameBtn.addEventListener('click', () => this.startGame());
+    this.startHelpBtn.addEventListener('click', () => this.showHelp());
+
+    this.startModeButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.changeSize(parseInt(e.target.dataset.size));
+      });
+    });
+
+    // メインゲーム画面のイベント
     this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
     this.retryBtn.addEventListener('click', () => this.initGame());
-    this.undoBtn.addEventListener('click', () => this.undo());
 
-    // あそびかたボタン関連
     this.howToPlayBtn.addEventListener('click', () => this.showHelp());
     this.closeHelpBtn.addEventListener('click', () => this.hideHelp());
     this.gotItBtn.addEventListener('click', () => this.hideHelp());
@@ -423,12 +466,16 @@ class GameManager {
       if (e.target === this.helpModal) this.hideHelp();
     });
 
-    // 確認モーダル
     this.cancelRestartBtn.addEventListener('click', () => this.hideConfirm());
-    this.confirmRestartBtn.addEventListener('click', () => this.initGame());
+    this.confirmRestartBtn.addEventListener('click', () => {
+      this.hideConfirm();
+      this.initGame();
+    });
     this.confirmModal.addEventListener('click', (e) => {
       if (e.target === this.confirmModal) this.hideConfirm();
     });
+
+    this.undoBtn.addEventListener('click', () => this.undo());
 
     this.keepPlayingBtn.addEventListener('click', () => {
       this.keepPlaying = true;
@@ -437,14 +484,7 @@ class GameManager {
 
     this.modeButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const newSize = parseInt(e.target.dataset.size);
-        if (newSize === this.size) return;
-
-        this.modeButtons.forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-
-        this.size = newSize;
-        this.initGame();
+        this.changeSize(parseInt(e.target.dataset.size));
       });
     });
 
