@@ -22,7 +22,7 @@ class Tile {
 
 class GameManager {
   constructor() {
-    this.size = 4; // デフォルト 4x4
+    this.size = 4;
     this.score = 0;
     this.won = false;
     this.over = false;
@@ -40,6 +40,21 @@ class GameManager {
     this.retryBtn = document.getElementById('retry-button');
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
+
+    // タイル色マップ（JS側で直接保証）
+    this.tileColors = {
+      2:    { bg: '#eee4da', text: '#776e65', shadow: 'none' },
+      4:    { bg: '#ede0c8', text: '#776e65', shadow: 'none' },
+      8:    { bg: '#f2b179', text: '#f9f6f2', shadow: 'none' },
+      16:   { bg: '#f59563', text: '#f9f6f2', shadow: 'none' },
+      32:   { bg: '#f67c5f', text: '#f9f6f2', shadow: 'none' },
+      64:   { bg: '#f65e3b', text: '#f9f6f2', shadow: 'none' },
+      128:  { bg: '#edcf72', text: '#f9f6f2', shadow: '0 0 10px rgba(243, 215, 116, 0.4)' },
+      256:  { bg: '#edcc61', text: '#f9f6f2', shadow: '0 0 14px rgba(243, 215, 116, 0.5)' },
+      512:  { bg: '#edc850', text: '#f9f6f2', shadow: '0 0 18px rgba(243, 215, 116, 0.6)' },
+      1024: { bg: '#edc53f', text: '#f9f6f2', shadow: '0 0 22px rgba(243, 215, 116, 0.7)' },
+      2048: { bg: '#edc22e', text: '#f9f6f2', shadow: '0 0 26px rgba(237, 194, 46, 0.85)' }
+    };
 
     this.isMoving = false;
     this.initEventListeners();
@@ -131,21 +146,33 @@ class GameManager {
   render() {
     this.tileContainer.innerHTML = '';
 
-    // 隙間とタイル幅のパーセント比率を算出
+    // 盤面サイズに応じたタイル幅・隙間の計算
     const gapPercent = this.size <= 4 ? 2.8 : 2.0;
     const tilePercent = (100 - (this.size - 1) * gapPercent) / this.size;
 
     this.tiles.forEach(tile => {
       const el = document.createElement('div');
-      const isSuper = tile.value > 2048;
-      el.className = `tile tile-${isSuper ? 'super' : tile.value}`;
+      el.className = 'tile';
       el.textContent = tile.value;
 
-      // 幅・高さを確実にパーセントで固定
+      // デザイン属性をインラインで直接確定
+      const color = this.tileColors[tile.value] || { bg: '#3c3a32', text: '#f9f6f2', shadow: 'none' };
+      el.style.position = 'absolute';
       el.style.width = `${tilePercent}%`;
       el.style.height = `${tilePercent}%`;
+      el.style.backgroundColor = color.bg;
+      el.style.color = color.text;
+      el.style.boxShadow = color.shadow;
+      el.style.borderRadius = '6px';
+      el.style.display = 'flex';
+      el.style.justifyContent = 'center';
+      el.style.alignItems = 'center';
+      el.style.fontWeight = '800';
+      el.style.lineHeight = '1';
+      el.style.transition = 'transform 100ms ease-in-out';
+      el.style.willChange = 'transform';
 
-      // 盤面サイズと桁数に応じた文字サイズ
+      // 文字サイズ
       let fontSize = 35;
       if (this.size === 2) fontSize = 54;
       if (this.size === 5) fontSize = 24;
@@ -154,7 +181,7 @@ class GameManager {
       if (tile.value >= 1000) fontSize = Math.floor(fontSize * 0.7);
       el.style.fontSize = `${fontSize}px`;
 
-      // 物理スライド位置の算出
+      // スライド移動位置
       const step = 100 + (gapPercent / tilePercent) * 100;
       const posX = tile.x * step;
       const posY = tile.y * step;
