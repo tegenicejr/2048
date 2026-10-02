@@ -16,6 +16,12 @@ class GameManager {
     this.messageText = document.getElementById('game-message-text');
     this.retryBtn = document.getElementById('retry-button');
 
+    // ランキングモーダル関連
+    this.rankingModal = document.getElementById('ranking-modal');
+    this.closeRankingBtn = document.getElementById('close-ranking-btn');
+    this.rankingList = document.getElementById('ranking-list');
+    this.noRankingText = document.getElementById('no-ranking-text');
+
     this.initEventListeners();
     this.initGame();
   }
@@ -48,6 +54,34 @@ class GameManager {
       this.messageBox.classList.remove('game-won');
     }
     this.messageBox.style.display = 'flex';
+  }
+
+  // ランキングモーダルの開閉
+  openRankingModal() {
+    const records = StorageManager.getRankings();
+    this.rankingList.innerHTML = '';
+
+    if (records.length === 0) {
+      this.noRankingText.style.display = 'block';
+    } else {
+      this.noRankingText.style.display = 'none';
+      records.forEach((rec, idx) => {
+        const tr = document.createElement('tr');
+        const rankClass = idx === 0 ? 'rank-badge-1' : idx === 1 ? 'rank-badge-2' : idx === 2 ? 'rank-badge-3' : '';
+        tr.innerHTML = `
+          <td class="${rankClass}">${idx + 1}位</td>
+          <td>${rec.score.toLocaleString()}</td>
+          <td><span class="tile-badge">${rec.maxTile}</span></td>
+          <td style="font-size:11px;color:#a39485;">${rec.date}</td>
+        `;
+        this.rankingList.appendChild(tr);
+      });
+    }
+    this.rankingModal.style.display = 'flex';
+  }
+
+  closeRankingModal() {
+    this.rankingModal.style.display = 'none';
   }
 
   // 空きマスにタイル生成
@@ -171,7 +205,6 @@ class GameManager {
       const newCell = this.addRandomTile();
       this.render(mergedCells, newCell);
 
-      // 効果音トリガー
       if (typeof sounds !== 'undefined') {
         if (mergedCells.length > 0) {
           const maxMergedVal = Math.max(...mergedCells.map(m => this.grid[m.r][m.c]));
@@ -211,7 +244,6 @@ class GameManager {
       return;
     }
 
-    // 動けるマスがあるか判定
     for (let r = 0; r < this.size; r++) {
       for (let c = 0; c < this.size; c++) {
         if (this.grid[r][c] === 0) return;
@@ -220,7 +252,6 @@ class GameManager {
       }
     }
 
-    // 手詰まり（ゲームオーバー）
     this.over = true;
     if (typeof sounds !== 'undefined') sounds.playGameOver();
     StorageManager.addRanking(this.score, this.getMaxTile());
@@ -232,14 +263,11 @@ class GameManager {
     this.retryBtn.addEventListener('click', () => this.initGame());
     this.undoBtn.addEventListener('click', () => this.undo());
 
-    this.rankingBtn.addEventListener('click', () => {
-      const records = StorageManager.getRankings();
-      if (records.length === 0) {
-        alert('ランキング記録はまだありません。');
-        return;
-      }
-      const list = records.map((rec, i) => `${i + 1}位: ${rec.score}点 (最大: ${rec.maxTile}) - ${rec.date}`).join('\n');
-      alert(`【ランキング TOP 5】\n${list}`);
+    // ランキングボタン & モーダルを閉じる処理
+    this.rankingBtn.addEventListener('click', () => this.openRankingModal());
+    this.closeRankingBtn.addEventListener('click', () => this.closeRankingModal());
+    this.rankingModal.addEventListener('click', (e) => {
+      if (e.target === this.rankingModal) this.closeRankingModal();
     });
 
     window.addEventListener('keydown', (e) => {
