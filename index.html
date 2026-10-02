@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css?v=start_touch_fix">
+  <link rel="stylesheet" href="style.css?v=header_panel_fix">
 </head>
 <body>
 
@@ -40,8 +40,11 @@
   <div class="game-container">
     <header class="game-header">
       <div class="header-top">
-        <a href="https://tegenicejr.github.io/Oh-LOVE-GAMES-CLUBHOUSE/" class="back-link">‹ アソビ大全へ</a>
-        <h1 class="title">2048</h1>
+        <button id="back-to-title-btn" class="back-link">‹ タイトルへ</button>
+        <div class="title-with-panel">
+          <h1 class="title">2048</h1>
+          <div class="header-tile-panel">2048</div>
+        </div>
       </div>
       <div class="scores-container">
         <div class="score-box">
@@ -83,12 +86,12 @@
     </div>
   </div>
 
-  <!-- やり直し確認モーダル -->
+  <!-- やり直し & 盤面変更確認モーダル -->
   <div id="confirm-modal" class="confirm-overlay">
     <div class="confirm-card">
       <div class="confirm-icon">⚠️</div>
-      <div class="confirm-title">やり直しますか？</div>
-      <div class="confirm-desc">
+      <div id="confirm-title" class="confirm-title">やり直しますか？</div>
+      <div id="confirm-desc" class="confirm-desc">
         現在のスコアと盤面の進行状況が<br>リセットされます。
       </div>
       <div class="confirm-actions">
@@ -151,6 +154,6 @@
 
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js?v=start_touch_fix"></script>
+  <script src="game.js?v=header_panel_fix"></script>
 </body>
 </html>
