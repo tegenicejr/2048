@@ -25,6 +25,173 @@ body {
   padding: env(safe-area-inset-top, 10px) env(safe-area-inset-right, 10px) env(safe-area-inset-bottom, 10px) env(safe-area-inset-left, 10px);
 }
 
+/* =========================================
+   スタート画面（タイトルスクリーン）
+========================================= */
+.start-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: radial-gradient(circle at 50% 25%, #fffdfa 0%, #ebe3d5 100%);
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.start-screen.hidden {
+  opacity: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+
+.start-content {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  animation: hero-appear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes hero-appear {
+  0% { opacity: 0; transform: translateY(20px) scale(0.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.start-header-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #a39485;
+  background: rgba(187, 173, 160, 0.2);
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+/* 黄金に輝くメインシンボルタイル */
+.start-hero-tile {
+  width: 96px;
+  height: 96px;
+  background: linear-gradient(180deg, #edc436 0%, #edc22e 100%);
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 18px;
+  box-shadow: 0 8px 0 #ca9f10, 0 12px 35px rgba(237, 194, 46, 0.65);
+  animation: float-hero 3s ease-in-out infinite alternate;
+}
+
+@keyframes float-hero {
+  0% { transform: translateY(0) rotate(-2deg); }
+  100% { transform: translateY(-8px) rotate(2deg); }
+}
+
+.start-title {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -3px;
+  color: #776e65;
+  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.9);
+}
+
+.start-subtitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #8f7a66;
+  margin-top: -6px;
+}
+
+.start-mode-container {
+  width: 100%;
+  background: #e0d7cb;
+  padding: 10px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.start-mode-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #8f7a66;
+  letter-spacing: 0.5px;
+}
+
+.start-mode-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.start-mode-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #776e65;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.start-mode-btn.active {
+  background: #faf8ef;
+  color: #f2613f;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.start-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.start-play-btn {
+  font-size: 17px !important;
+  padding: 14px 0 !important;
+  border-radius: 12px !important;
+  letter-spacing: 0.5px;
+}
+
+.start-sub-btn {
+  padding: 11px 0 !important;
+  font-size: 14px !important;
+  border-radius: 10px !important;
+}
+
+.start-back-link {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a39485;
+  text-decoration: none;
+  margin-top: 6px;
+  transition: opacity 0.2s;
+}
+
+.start-back-link:active {
+  opacity: 0.6;
+}
+
+/* =========================================
+   メインゲーム画面
+========================================= */
 .game-container {
   width: 100%;
   max-width: 440px;
@@ -149,6 +316,7 @@ body {
   transform: translateY(-1px);
 }
 
+/* ボタン群 */
 .controls {
   display: flex;
   gap: 8px;
@@ -276,7 +444,7 @@ body {
   font-size: 14px;
 }
 
-/* 全画面モーダルオーバーレイ */
+/* モーダル共通オーバーレイ */
 .confirm-overlay {
   display: none;
   position: fixed;
@@ -294,7 +462,7 @@ body {
   padding: 16px;
 }
 
-/* やり直し確認カード：横幅にゆとりを持たせて改行バランスを美化 */
+/* やり直し確認カード */
 .confirm-card {
   background: #faf8ef;
   width: 100%;
