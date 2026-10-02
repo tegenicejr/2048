@@ -6,11 +6,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css?v=stats_sound_v1">
+  <link rel="stylesheet" href="style.css?v=collection_autosave_v1">
 </head>
 <body>
 
-  <!-- スタート画面（初期表示） -->
+  <!-- スタート画面 -->
   <div id="start-screen" class="start-screen">
     <div class="start-content">
       <div class="start-header-badge">GAMES CLUBHOUSE</div>
@@ -30,7 +30,10 @@
 
       <div class="start-actions">
         <button id="start-game-btn" class="btn primary start-play-btn">ゲームスタート</button>
-        <button id="start-help-btn" class="btn sub-btn start-sub-btn">あそびかた</button>
+        <div class="start-btn-row">
+          <button id="collection-btn" class="btn sub-btn start-sub-btn">コレクション</button>
+          <button id="start-help-btn" class="btn sub-btn start-sub-btn">あそびかた</button>
+        </div>
       </div>
 
       <a href="https://tegenicejr.github.io/Oh-LOVE-GAMES-CLUBHOUSE/" class="start-back-link">‹ アソビ大全へもどる</a>
@@ -39,13 +42,11 @@
 
   <div class="game-container">
     <header class="game-header">
-      <!-- 上段：タイトルへ戻る ＆ サウンドトグル -->
       <div class="header-nav-bar">
         <button id="back-to-title-btn" class="back-link">‹ タイトルへ</button>
         <button id="sound-toggle-btn" class="sound-toggle-btn" aria-label="音声切り替え">🔊</button>
       </div>
 
-      <!-- 下段：ロゴ・パネル ＆ 2×2スタッツボックス -->
       <div class="header-main-bar">
         <div class="title-with-panel">
           <h1 class="title">2048</h1>
@@ -89,10 +90,12 @@
       <div id="grid-container" class="grid-container"></div>
       <div id="tile-container" class="tile-container"></div>
 
-      <!-- ゲームオーバー / 勝利モーダル -->
+      <!-- ゲームオーバー / 勝利モーダル（共有ボタン追加） -->
       <div id="game-message" class="game-message">
         <p id="game-message-text">Game Over!</p>
+        <div class="message-stats-summary" id="message-stats-summary"></div>
         <div class="lower">
+          <button id="share-score-button" class="btn share-btn">ポストする</button>
           <button id="keep-playing-button" class="btn">続ける</button>
           <button id="retry-button" class="btn primary">もう一度</button>
         </div>
@@ -112,6 +115,19 @@
         <button id="cancel-restart-btn" class="btn">キャンセル</button>
         <button id="confirm-restart-btn" class="btn primary">やり直す</button>
       </div>
+    </div>
+  </div>
+
+  <!-- タイルコレクションモーダル -->
+  <div id="collection-modal" class="confirm-overlay">
+    <div class="collection-card">
+      <div class="collection-header">
+        <div class="collection-title">タイルコレクション</div>
+        <button id="close-collection-btn" class="help-close-btn">&times;</button>
+      </div>
+      <p class="collection-desc">ゲーム内で合体させて到達したタイルが解放されます。</p>
+      <div id="collection-grid" class="collection-grid"></div>
+      <button id="close-collection-bottom-btn" class="btn primary help-ok-btn">とじる</button>
     </div>
   </div>
 
@@ -168,6 +184,6 @@
 
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js?v=stats_sound_v1"></script>
+  <script src="game.js?v=collection_autosave_v1"></script>
 </body>
 </html>
