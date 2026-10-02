@@ -41,19 +41,19 @@ class GameManager {
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
 
-    // タイル色マップ（JS側で直接保証）
-    this.tileColors = {
-      2:    { bg: '#eee4da', text: '#776e65', shadow: 'none' },
-      4:    { bg: '#ede0c8', text: '#776e65', shadow: 'none' },
-      8:    { bg: '#f2b179', text: '#f9f6f2', shadow: 'none' },
-      16:   { bg: '#f59563', text: '#f9f6f2', shadow: 'none' },
-      32:   { bg: '#f67c5f', text: '#f9f6f2', shadow: 'none' },
-      64:   { bg: '#f65e3b', text: '#f9f6f2', shadow: 'none' },
-      128:  { bg: '#edcf72', text: '#f9f6f2', shadow: '0 0 10px rgba(243, 215, 116, 0.4)' },
-      256:  { bg: '#edcc61', text: '#f9f6f2', shadow: '0 0 14px rgba(243, 215, 116, 0.5)' },
-      512:  { bg: '#edc850', text: '#f9f6f2', shadow: '0 0 18px rgba(243, 215, 116, 0.6)' },
-      1024: { bg: '#edc53f', text: '#f9f6f2', shadow: '0 0 22px rgba(243, 215, 116, 0.7)' },
-      2048: { bg: '#edc22e', text: '#f9f6f2', shadow: '0 0 26px rgba(237, 194, 46, 0.85)' }
+    // リッチなグラデーション & シャドウマップ
+    this.tileStyles = {
+      2:    { bg: 'linear-gradient(180deg, #f2ece4 0%, #eee4da 100%)', text: '#776e65', shadow: '0 3px 0 #ded2c3' },
+      4:    { bg: 'linear-gradient(180deg, #f0e6d2 0%, #ede0c8 100%)', text: '#776e65', shadow: '0 3px 0 #d9ccaF' },
+      8:    { bg: 'linear-gradient(180deg, #f7ba82 0%, #f2b179 100%)', text: '#ffffff', shadow: '0 3px 0 #d99962' },
+      16:   { bg: 'linear-gradient(180deg, #faa171 0%, #f59563 100%)', text: '#ffffff', shadow: '0 3px 0 #da7d4d' },
+      32:   { bg: 'linear-gradient(180deg, #fa8a6e 0%, #f67c5f 100%)', text: '#ffffff', shadow: '0 3px 0 #d86246' },
+      64:   { bg: 'linear-gradient(180deg, #fa6d4b 0%, #f65e3b 100%)', text: '#ffffff', shadow: '0 3px 0 #d44524' },
+      128:  { bg: 'linear-gradient(180deg, #edd27c 0%, #edcf72 100%)', text: '#ffffff', shadow: '0 3px 0 #cdb055, 0 0 16px rgba(237, 207, 114, 0.6)' },
+      256:  { bg: 'linear-gradient(180deg, #edcf6b 0%, #edcc61 100%)', text: '#ffffff', shadow: '0 3px 0 #cdad43, 0 0 20px rgba(237, 204, 97, 0.7)' },
+      512:  { bg: 'linear-gradient(180deg, #edcb59 0%, #edc850 100%)', text: '#ffffff', shadow: '0 3px 0 #caa632, 0 0 24px rgba(237, 200, 80, 0.8)' },
+      1024: { bg: 'linear-gradient(180deg, #edc849 0%, #edc53f 100%)', text: '#ffffff', shadow: '0 3px 0 #caa320, 0 0 28px rgba(237, 197, 63, 0.9)' },
+      2048: { bg: 'linear-gradient(180deg, #edc436 0%, #edc22e 100%)', text: '#ffffff', shadow: '0 3px 0 #ca9f10, 0 0 35px rgba(237, 194, 46, 1)' }
     };
 
     this.isMoving = false;
@@ -85,7 +85,7 @@ class GameManager {
     this.isMoving = false;
     this.hideMessage();
     StorageManager.clearHistory();
-    this.updateScore(0);
+    this.updateScore(0, false);
     this.bestScoreDisplay.textContent = StorageManager.getBestScore(this.size);
 
     this.addRandomTile();
@@ -146,7 +146,6 @@ class GameManager {
   render() {
     this.tileContainer.innerHTML = '';
 
-    // 盤面サイズに応じたタイル幅・隙間の計算
     const gapPercent = this.size <= 4 ? 2.8 : 2.0;
     const tilePercent = (100 - (this.size - 1) * gapPercent) / this.size;
 
@@ -155,33 +154,36 @@ class GameManager {
       el.className = 'tile';
       el.textContent = tile.value;
 
-      // デザイン属性をインラインで直接確定
-      const color = this.tileColors[tile.value] || { bg: '#3c3a32', text: '#f9f6f2', shadow: 'none' };
+      const style = this.tileStyles[tile.value] || {
+        bg: 'linear-gradient(180deg, #444139 0%, #2b2a24 100%)',
+        text: '#ffffff',
+        shadow: '0 3px 0 #1a1915'
+      };
+
       el.style.position = 'absolute';
       el.style.width = `${tilePercent}%`;
       el.style.height = `${tilePercent}%`;
-      el.style.backgroundColor = color.bg;
-      el.style.color = color.text;
-      el.style.boxShadow = color.shadow;
-      el.style.borderRadius = '6px';
+      el.style.background = style.bg;
+      el.style.color = style.text;
+      el.style.boxShadow = style.shadow;
+      el.style.borderRadius = '8px';
       el.style.display = 'flex';
       el.style.justifyContent = 'center';
       el.style.alignItems = 'center';
-      el.style.fontWeight = '800';
+      el.style.fontWeight = '900';
       el.style.lineHeight = '1';
       el.style.transition = 'transform 100ms ease-in-out';
       el.style.willChange = 'transform';
 
-      // 文字サイズ
-      let fontSize = 35;
-      if (this.size === 2) fontSize = 54;
-      if (this.size === 5) fontSize = 24;
-      if (this.size === 6) fontSize = 18;
-      if (tile.value >= 100 && this.size >= 4) fontSize = Math.floor(fontSize * 0.8);
-      if (tile.value >= 1000) fontSize = Math.floor(fontSize * 0.7);
+      // 盤面ごとのフォント自動スケール
+      let fontSize = 36;
+      if (this.size === 2) fontSize = 56;
+      if (this.size === 5) fontSize = 26;
+      if (this.size === 6) fontSize = 20;
+      if (tile.value >= 100 && this.size >= 4) fontSize = Math.floor(fontSize * 0.82);
+      if (tile.value >= 1000) fontSize = Math.floor(fontSize * 0.72);
       el.style.fontSize = `${fontSize}px`;
 
-      // スライド移動位置
       const step = 100 + (gapPercent / tilePercent) * 100;
       const posX = tile.x * step;
       const posY = tile.y * step;
@@ -202,9 +204,19 @@ class GameManager {
     });
   }
 
-  updateScore(add) {
+  // スコア更新 & 「+4」「+8」ポップアップ演出
+  updateScore(add, showAddition = true) {
     this.score += add;
     this.scoreDisplay.textContent = this.score;
+
+    if (showAddition && add > 0) {
+      const addition = document.createElement('div');
+      addition.className = 'score-addition';
+      addition.textContent = `+${add}`;
+      this.scoreDisplay.parentElement.appendChild(addition);
+      setTimeout(() => addition.remove(), 600);
+    }
+
     const best = StorageManager.setBestScore(this.score, this.size);
     this.bestScoreDisplay.textContent = best;
   }
