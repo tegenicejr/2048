@@ -6,9 +6,36 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css?v=line_break_fix">
+  <link rel="stylesheet" href="style.css?v=start_screen">
 </head>
 <body>
+
+  <!-- スタート画面（初期表示） -->
+  <div id="start-screen" class="start-screen">
+    <div class="start-content">
+      <div class="start-header-badge">GAMES CLUBHOUSE</div>
+      <div class="start-hero-tile">2048</div>
+      <h1 class="start-title">2048</h1>
+      <p class="start-subtitle">タイルを重ねて、伝説の数字へ。</p>
+
+      <div class="start-mode-container">
+        <span class="start-mode-label">盤面サイズを選択</span>
+        <div class="start-mode-selector">
+          <button class="start-mode-btn" data-size="2">2×2</button>
+          <button class="start-mode-btn active" data-size="4">4×4</button>
+          <button class="start-mode-btn" data-size="5">5×5</button>
+          <button class="start-mode-btn" data-size="6">6×6</button>
+        </div>
+      </div>
+
+      <div class="start-actions">
+        <button id="start-game-btn" class="btn primary start-play-btn">ゲームスタート</button>
+        <button id="start-help-btn" class="btn sub-btn start-sub-btn">あそびかた</button>
+      </div>
+
+      <a href="https://tegenicejr.github.io/Oh-LOVE-GAMES-CLUBHOUSE/" class="start-back-link">‹ アソビ大全へもどる</a>
+    </div>
+  </div>
 
   <div class="game-container">
     <header class="game-header">
@@ -35,7 +62,6 @@
       <button class="mode-btn" data-size="6">6×6</button>
     </div>
 
-    <!-- コントロールボタン -->
     <div class="controls">
       <button id="how-to-play-btn" class="btn sub-btn">あそびかた</button>
       <button id="undo-btn" class="btn">1手戻す</button>
@@ -57,7 +83,7 @@
     </div>
   </div>
 
-  <!-- やり直し確認モーダル（自然な位置で改行） -->
+  <!-- やり直し確認モーダル -->
   <div id="confirm-modal" class="confirm-overlay">
     <div class="confirm-card">
       <div class="confirm-icon">⚠️</div>
@@ -125,6 +151,6 @@
 
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js?v=line_break_fix"></script>
+  <script src="game.js?v=start_screen"></script>
 </body>
 </html>
