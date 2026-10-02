@@ -38,18 +38,24 @@
     <!-- 4x4 ゲーム盤面 -->
     <div class="board-wrapper">
       <div id="grid-container" class="grid-container">
-        <!-- 背景グリッド（16マス） -->
         <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
         <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
         <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
         <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
       </div>
-      <!-- 動くタイルが重なるコンテナ -->
       <div id="tile-container" class="tile-container"></div>
+
+      <!-- ゲームオーバー/クリア用オーバーレイモーダル -->
+      <div id="game-message" class="game-message">
+        <p id="game-message-text">Game Over!</p>
+        <div class="lower">
+          <button id="retry-button" class="btn primary">もう一度遊ぶ</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- スクリプトの読み込み（保存処理 -> ゲーム本体の順） -->
+  <script src="audio.js"></script>
   <script src="storage.js"></script>
   <script src="game.js"></script>
 </body>
