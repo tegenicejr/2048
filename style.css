@@ -155,32 +155,32 @@ body {
   pointer-events: none;
 }
 
-/* タイル本体（確実なブロック描画） */
+/* タイル本体 */
 .tile {
   position: absolute;
   border-radius: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   font-weight: 800;
   line-height: 1;
   transition: transform 100ms ease-in-out;
   will-change: transform;
 }
 
-/* タイル色 */
-.tile-2    { background: #eee4da; color: #776e65; }
-.tile-4    { background: #ede0c8; color: #776e65; }
-.tile-8    { background: #f2b179; color: #f9f6f2; }
-.tile-16   { background: #f59563; color: #f9f6f2; }
-.tile-32   { background: #f67c5f; color: #f9f6f2; }
-.tile-64   { background: #f65e3b; color: #f9f6f2; }
-.tile-128  { background: #edcf72; color: #f9f6f2; box-shadow: 0 0 10px rgba(243, 215, 116, 0.4); }
-.tile-256  { background: #edcc61; color: #f9f6f2; box-shadow: 0 0 14px rgba(243, 215, 116, 0.5); }
-.tile-512  { background: #edc850; color: #f9f6f2; box-shadow: 0 0 18px rgba(243, 215, 116, 0.6); }
-.tile-1024 { background: #edc53f; color: #f9f6f2; box-shadow: 0 0 22px rgba(243, 215, 116, 0.7); }
-.tile-2048 { background: #edc22e; color: #f9f6f2; box-shadow: 0 0 26px rgba(237, 194, 46, 0.85); }
-.tile-super{ background: #3c3a32; color: #f9f6f2; }
+/* タイル配色（!importantで確実に着色） */
+.tile-2    { background-color: #eee4da !important; color: #776e65 !important; }
+.tile-4    { background-color: #ede0c8 !important; color: #776e65 !important; }
+.tile-8    { background-color: #f2b179 !important; color: #f9f6f2 !important; }
+.tile-16   { background-color: #f59563 !important; color: #f9f6f2 !important; }
+.tile-32   { background-color: #f67c5f !important; color: #f9f6f2 !important; }
+.tile-64   { background-color: #f65e3b !important; color: #f9f6f2 !important; }
+.tile-128  { background-color: #edcf72 !important; color: #f9f6f2 !important; box-shadow: 0 0 10px rgba(243, 215, 116, 0.4); }
+.tile-256  { background-color: #edcc61 !important; color: #f9f6f2 !important; box-shadow: 0 0 14px rgba(243, 215, 116, 0.5); }
+.tile-512  { background-color: #edc850 !important; color: #f9f6f2 !important; box-shadow: 0 0 18px rgba(243, 215, 116, 0.6); }
+.tile-1024 { background-color: #edc53f !important; color: #f9f6f2 !important; box-shadow: 0 0 22px rgba(243, 215, 116, 0.7); }
+.tile-2048 { background-color: #edc22e !important; color: #f9f6f2 !important; box-shadow: 0 0 26px rgba(237, 194, 46, 0.85); }
+.tile-super{ background-color: #3c3a32 !important; color: #f9f6f2 !important; }
 
 .tile-new {
   animation: appear 140ms ease-out forwards;
