@@ -11,16 +11,9 @@ class GameManager {
     this.bestScoreDisplay = document.getElementById('best-score');
     this.undoBtn = document.getElementById('undo-btn');
     this.restartBtn = document.getElementById('restart-btn');
-    this.rankingBtn = document.getElementById('ranking-btn');
     this.messageBox = document.getElementById('game-message');
     this.messageText = document.getElementById('game-message-text');
     this.retryBtn = document.getElementById('retry-button');
-
-    // ランキングモーダル関連
-    this.rankingModal = document.getElementById('ranking-modal');
-    this.closeRankingBtn = document.getElementById('close-ranking-btn');
-    this.rankingList = document.getElementById('ranking-list');
-    this.noRankingText = document.getElementById('no-ranking-text');
 
     this.initEventListeners();
     this.initGame();
@@ -54,34 +47,6 @@ class GameManager {
       this.messageBox.classList.remove('game-won');
     }
     this.messageBox.style.display = 'flex';
-  }
-
-  // ランキングモーダルの開閉
-  openRankingModal() {
-    const records = StorageManager.getRankings();
-    this.rankingList.innerHTML = '';
-
-    if (records.length === 0) {
-      this.noRankingText.style.display = 'block';
-    } else {
-      this.noRankingText.style.display = 'none';
-      records.forEach((rec, idx) => {
-        const tr = document.createElement('tr');
-        const rankClass = idx === 0 ? 'rank-badge-1' : idx === 1 ? 'rank-badge-2' : idx === 2 ? 'rank-badge-3' : '';
-        tr.innerHTML = `
-          <td class="${rankClass}">${idx + 1}位</td>
-          <td>${rec.score.toLocaleString()}</td>
-          <td><span class="tile-badge">${rec.maxTile}</span></td>
-          <td style="font-size:11px;color:#a39485;">${rec.date}</td>
-        `;
-        this.rankingList.appendChild(tr);
-      });
-    }
-    this.rankingModal.style.display = 'flex';
-  }
-
-  closeRankingModal() {
-    this.rankingModal.style.display = 'none';
   }
 
   // 空きマスにタイル生成
@@ -239,7 +204,6 @@ class GameManager {
 
   checkGameState() {
     if (this.won && !this.messageBox.classList.contains('game-won')) {
-      StorageManager.addRanking(this.score, this.getMaxTile());
       this.showMessage(true);
       return;
     }
@@ -254,7 +218,6 @@ class GameManager {
 
     this.over = true;
     if (typeof sounds !== 'undefined') sounds.playGameOver();
-    StorageManager.addRanking(this.score, this.getMaxTile());
     this.showMessage(false);
   }
 
@@ -262,13 +225,6 @@ class GameManager {
     this.restartBtn.addEventListener('click', () => this.initGame());
     this.retryBtn.addEventListener('click', () => this.initGame());
     this.undoBtn.addEventListener('click', () => this.undo());
-
-    // ランキングボタン & モーダルを閉じる処理
-    this.rankingBtn.addEventListener('click', () => this.openRankingModal());
-    this.closeRankingBtn.addEventListener('click', () => this.closeRankingModal());
-    this.rankingModal.addEventListener('click', (e) => {
-      if (e.target === this.rankingModal) this.closeRankingModal();
-    });
 
     window.addEventListener('keydown', (e) => {
       const map = {
