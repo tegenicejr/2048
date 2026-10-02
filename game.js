@@ -213,7 +213,7 @@ class GameManager {
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
         '盤面を変更しますか？',
-        `盤面を${newSize}×${newSize}に変更すると、<br>現在のスコアと進行状況がリセットされます。`,
+        `盤面を${newSize}×${newSize}に変更すると、<br>現在のスコアと進行状況が<br>リセットされます。`,
         '変更する',
         () => this.changeSize(newSize)
       );
