@@ -22,11 +22,11 @@ class Tile {
 
 class GameManager {
   constructor() {
-    this.size = 4; // デフォルト 4x4
+    this.size = 4;
     this.score = 0;
     this.won = false;
     this.over = false;
-    this.keepPlaying = false; // エンドレス継続フラグ
+    this.keepPlaying = false;
     this.tiles = [];
 
     this.gridContainer = document.getElementById('grid-container');
@@ -46,11 +46,11 @@ class GameManager {
     this.initGame();
   }
 
-  // 盤面サイズ設定とグリッドセルの再構築
   setupGrid() {
     const gap = this.size <= 4 ? 10 : 8;
-    this.gridContainer.style.setProperty('--grid-size', this.size);
-    this.gridContainer.style.setProperty('--grid-gap', `${gap}px`);
+    this.gridContainer.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
+    this.gridContainer.style.gridTemplateRows = `repeat(${this.size}, 1fr)`;
+    this.gridContainer.style.gap = `${gap}px`;
     this.gridContainer.innerHTML = '';
 
     for (let i = 0; i < this.size * this.size; i++) {
@@ -132,32 +132,33 @@ class GameManager {
     this.tileContainer.innerHTML = '';
     const gap = this.size <= 4 ? 10 : 8;
 
+    // コンテナ幅からピクセル単位で正確に計算
+    const containerWidth = this.tileContainer.offsetWidth || 380;
+    const tileSize = (containerWidth - (this.size - 1) * gap) / this.size;
+
     this.tiles.forEach(tile => {
       const el = document.createElement('div');
       const isSuper = tile.value > 2048;
       el.className = `tile tile-${isSuper ? 'super' : tile.value}`;
       el.textContent = tile.value;
 
-      // 可変サイズ計算
-      const cellSize = `calc((100% - ${(this.size - 1) * gap}px) / ${this.size})`;
-      el.style.setProperty('--cell-size', cellSize);
+      // ピクセルで確実に付与
+      el.style.width = `${tileSize}px`;
+      el.style.height = `${tileSize}px`;
 
-      // 文字サイズの微調整（盤面サイズと桁数による自動縮小）
-      let fontSize = 32;
-      if (this.size === 2) fontSize = 48;
-      if (this.size === 5) fontSize = 24;
-      if (this.size === 6) fontSize = 18;
-      if (tile.value >= 128 && this.size >= 4) fontSize = Math.floor(fontSize * 0.8);
-      if (tile.value >= 1024) fontSize = Math.floor(fontSize * 0.7);
-      el.style.setProperty('--tile-font-size', `${fontSize}px`);
+      // 文字サイズ
+      let fontSize = Math.floor(tileSize * 0.42);
+      if (tile.value >= 100) fontSize = Math.floor(tileSize * 0.35);
+      if (tile.value >= 1000) fontSize = Math.floor(tileSize * 0.28);
+      el.style.fontSize = `${fontSize}px`;
 
-      // 物理スライド位置の算出
-      const xCalc = `calc(${tile.x} * (${cellSize} + ${gap}px))`;
-      const yCalc = `calc(${tile.y} * (${cellSize} + ${gap}px))`;
+      // 位置計算
+      const posX = tile.x * (tileSize + gap);
+      const posY = tile.y * (tileSize + gap);
 
-      el.style.setProperty('--x', xCalc);
-      el.style.setProperty('--y', yCalc);
-      el.style.transform = `translate(${xCalc}, ${yCalc})`;
+      const transformStr = `translate(${posX}px, ${posY}px)`;
+      el.style.setProperty('--pos', transformStr);
+      el.style.transform = transformStr;
 
       if (tile.isNew) {
         el.classList.add('tile-new');
@@ -323,13 +324,11 @@ class GameManager {
     this.retryBtn.addEventListener('click', () => this.initGame());
     this.undoBtn.addEventListener('click', () => this.undo());
 
-    // エンドレス（続ける）ボタン
     this.keepPlayingBtn.addEventListener('click', () => {
       this.keepPlaying = true;
       this.hideMessage();
     });
 
-    // 盤面サイズ切り替えタブ
     this.modeButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const newSize = parseInt(e.target.dataset.size);
@@ -342,6 +341,8 @@ class GameManager {
         this.initGame();
       });
     });
+
+    window.addEventListener('resize', () => this.render());
 
     window.addEventListener('keydown', (e) => {
       const map = {
