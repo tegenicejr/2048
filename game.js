@@ -24,17 +24,28 @@ class GameManager {
   constructor() {
     this.size = 4;
     this.score = 0;
+    this.moves = 0;
+    this.seconds = 0;
+    this.timerInterval = null;
+    this.isTimerRunning = false;
     this.won = false;
     this.over = false;
     this.keepPlaying = false;
     this.tiles = [];
     this.isGameStarted = false;
-    this.pendingAction = null; // 確認モーダル承認後の実行処理
+    this.pendingAction = null;
+
+    // 音声ミュート状態の初期化
+    this.isMuted = localStorage.getItem('2048_muted') === 'true';
 
     this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
     this.scoreDisplay = document.getElementById('score');
     this.bestScoreDisplay = document.getElementById('best-score');
+    this.movesDisplay = document.getElementById('moves');
+    this.timeDisplay = document.getElementById('time');
+    this.soundToggleBtn = document.getElementById('sound-toggle-btn');
+
     this.undoBtn = document.getElementById('undo-btn');
     this.restartBtn = document.getElementById('restart-btn');
     this.messageBox = document.getElementById('game-message');
@@ -84,8 +95,65 @@ class GameManager {
 
     this.isMoving = false;
     this.hasMoved = false;
+    this.updateSoundButtonState();
     this.initEventListeners();
     this.initGame();
+  }
+
+  // サウンドボタン表示同期
+  updateSoundButtonState() {
+    if (this.isMuted) {
+      this.soundToggleBtn.textContent = '🔇';
+      this.soundToggleBtn.classList.add('muted');
+    } else {
+      this.soundToggleBtn.textContent = '🔊';
+      this.soundToggleBtn.classList.remove('muted');
+    }
+  }
+
+  toggleSound() {
+    this.isMuted = !this.isMuted;
+    localStorage.setItem('2048_muted', this.isMuted);
+    this.updateSoundButtonState();
+    this.triggerHaptic('light');
+  }
+
+  playSound(type, arg) {
+    if (this.isMuted || typeof sounds === 'undefined') return;
+    if (type === 'move') sounds.playMove();
+    else if (type === 'merge') sounds.playMerge(arg);
+    else if (type === 'bigMerge') sounds.playBigMerge();
+    else if (type === 'gameOver') sounds.playGameOver();
+  }
+
+  // タイマー管理
+  startTimer() {
+    if (this.isTimerRunning) return;
+    this.isTimerRunning = true;
+    this.timerInterval = setInterval(() => {
+      this.seconds++;
+      this.renderTime();
+    }, 1000);
+  }
+
+  stopTimer() {
+    this.isTimerRunning = false;
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  resetTimer() {
+    this.stopTimer();
+    this.seconds = 0;
+    this.renderTime();
+  }
+
+  renderTime() {
+    const m = String(Math.floor(this.seconds / 60)).padStart(2, '0');
+    const s = String(this.seconds % 60).padStart(2, '0');
+    this.timeDisplay.textContent = `${m}:${s}`;
   }
 
   setupGrid() {
@@ -106,11 +174,15 @@ class GameManager {
     this.setupGrid();
     this.tiles = [];
     this.score = 0;
+    this.moves = 0;
     this.won = false;
     this.over = false;
     this.keepPlaying = false;
     this.isMoving = false;
     this.hasMoved = false;
+
+    this.resetTimer();
+    this.movesDisplay.textContent = '0';
     this.hideMessage();
     this.hideConfirm();
     this.hideHelp();
@@ -123,9 +195,9 @@ class GameManager {
     this.render();
   }
 
-  // スタート画面を開く（タイトルへ戻る）
   showStartScreen() {
     this.isGameStarted = false;
+    this.stopTimer();
     this.startScreen.classList.remove('hidden');
     this.hideMessage();
     this.hideConfirm();
@@ -136,7 +208,7 @@ class GameManager {
     this.isGameStarted = true;
     this.startScreen.classList.add('hidden');
     this.triggerHaptic('light');
-    if (typeof sounds !== 'undefined') sounds.playMove();
+    this.playSound('move');
   }
 
   changeSize(newSize) {
@@ -159,6 +231,7 @@ class GameManager {
   }
 
   showMessage(won) {
+    this.stopTimer();
     if (won) {
       this.messageText.textContent = 'You Win! 2048達成!';
       this.messageBox.classList.add('game-won');
@@ -192,7 +265,6 @@ class GameManager {
     this.helpModal.style.display = 'none';
   }
 
-  // やり直すボタン押下時の判定
   handleRestartRequest() {
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
@@ -206,14 +278,13 @@ class GameManager {
     }
   }
 
-  // 盤面変更ボタン押下時の判定（「変更すると、」の直後で改行）
   handleModeChangeRequest(newSize) {
     if (newSize === this.size) return;
 
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
         '盤面を変更しますか？',
-        `盤面を${newSize}×${newSize}に変更すると、<br>現在のスコアと進行状況が<br>リセットされます。`,
+        `盤面を${newSize}×${newSize}に変更すると、<br>現在のスコアと進行状況がリセットされます。`,
         '変更する',
         () => this.changeSize(newSize)
       );
@@ -222,7 +293,6 @@ class GameManager {
     }
   }
 
-  // タイトルへ戻る押下時の判定
   handleBackToTitleRequest() {
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
@@ -430,19 +500,21 @@ class GameManager {
     if (moved) {
       this.isMoving = true;
       this.hasMoved = true;
+      this.moves++;
+      this.movesDisplay.textContent = this.moves;
+      this.startTimer(); // 最初の移動でタイマースタート
+
       this.tiles = nextTiles;
       this.render();
 
       if (mergedTracker.size > 0) {
         this.triggerHaptic('medium');
         const maxVal = Math.max(...Array.from(mergedTracker).map(t => t.value));
-        if (typeof sounds !== 'undefined') {
-          if (maxVal >= 128) sounds.playBigMerge();
-          else sounds.playMerge(maxVal);
-        }
+        if (maxVal >= 128) this.playSound('bigMerge');
+        else this.playSound('merge', maxVal);
       } else {
         this.triggerHaptic('light');
-        if (typeof sounds !== 'undefined') sounds.playMove();
+        this.playSound('move');
       }
 
       setTimeout(() => {
@@ -472,6 +544,12 @@ class GameManager {
     }
     this.score = prevState.score;
     this.scoreDisplay.textContent = this.score;
+
+    if (this.moves > 0) {
+      this.moves--;
+      this.movesDisplay.textContent = this.moves;
+    }
+
     this.hideMessage();
     this.render();
   }
@@ -494,11 +572,15 @@ class GameManager {
 
     this.over = true;
     this.triggerHaptic('heavy');
-    if (typeof sounds !== 'undefined') sounds.playGameOver();
+    this.playSound('gameOver');
     this.showMessage(false);
   }
 
   initEventListeners() {
+    // サウンドトグルボタン
+    this.soundToggleBtn.addEventListener('click', () => this.toggleSound());
+
+    // スタート画面イベント
     const handleStart = (e) => {
       e.preventDefault();
       this.startGame();
@@ -513,7 +595,6 @@ class GameManager {
     this.startHelpBtn.addEventListener('click', handleStartHelp);
     this.startHelpBtn.addEventListener('touchend', handleStartHelp);
 
-    // スタート画面のサイズ切り替え
     this.startModeButtons.forEach(btn => {
       const handleMode = (e) => {
         e.preventDefault();
@@ -526,7 +607,7 @@ class GameManager {
     // ‹ タイトルへ ボタン
     this.backToTitleBtn.addEventListener('click', () => this.handleBackToTitleRequest());
 
-    // メインゲーム画面のイベント
+    // ゲーム操作ボタン
     this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
     this.retryBtn.addEventListener('click', () => this.initGame());
 
@@ -537,7 +618,6 @@ class GameManager {
       if (e.target === this.helpModal) this.hideHelp();
     });
 
-    // 確認モーダル（承認時に保留アクションを実行）
     this.cancelRestartBtn.addEventListener('click', () => this.hideConfirm());
     this.confirmRestartBtn.addEventListener('click', () => {
       const action = this.pendingAction;
@@ -553,9 +633,9 @@ class GameManager {
     this.keepPlayingBtn.addEventListener('click', () => {
       this.keepPlaying = true;
       this.hideMessage();
+      this.startTimer();
     });
 
-    // ゲーム中の盤面サイズ切り替え（確認を挟む）
     this.modeButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
         this.handleModeChangeRequest(parseInt(e.target.dataset.size));
