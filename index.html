@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>2048 - Games Club</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="animations.css">
+</head>
+<body>
+
+  <div class="game-container">
+    <!-- ヘッダーエリア -->
+    <header class="game-header">
+      <div class="header-top">
+        <a href="https://tegenicejr.github.io/Oh-LOVE-GAMES-CLUBHOUSE/" class="back-link">‹ アソビ大全へ</a>
+        <h1 class="title">2048</h1>
+      </div>
+      <div class="scores-container">
+        <div class="score-box">
+          <span class="label">SCORE</span>
+          <span id="score" class="value">0</span>
+        </div>
+        <div class="score-box">
+          <span class="label">BEST</span>
+          <span id="best-score" class="value">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- コントロールボタン -->
+    <div class="controls">
+      <button id="undo-btn" class="btn">1手戻す</button>
+      <button id="ranking-btn" class="btn">ランキング</button>
+      <button id="restart-btn" class="btn primary">やり直す</button>
+    </div>
+
+    <!-- 4x4 ゲーム盤面 -->
+    <div class="board-wrapper">
+      <div id="grid-container" class="grid-container">
+        <!-- 背景グリッド（16マス） -->
+        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
+        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
+        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
+        <div class="grid-row"><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div></div>
+      </div>
+      <!-- 動くタイルが重なるコンテナ -->
+      <div id="tile-container" class="tile-container"></div>
+    </div>
+  </div>
+
+  <!-- スクリプトの読み込み（保存処理 -> ゲーム本体の順） -->
+  <script src="storage.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
