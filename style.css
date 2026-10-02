@@ -213,3 +213,110 @@ body {
     transform: scale(1);
   }
 }
+/* モーダル共通オーバーレイ背景 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* カード本体 */
+.modal-card {
+  background: #faf8ef;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: card-appear 200ms ease-out forwards;
+}
+
+@keyframes card-appear {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #eee4da;
+  padding-bottom: 10px;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #776e65;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: #8f7a66;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.close-btn:active {
+  transform: scale(0.9);
+}
+
+/* ランキング表 */
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.ranking-table th {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a39485;
+  padding: 8px 4px;
+  border-bottom: 1px solid #d8cfc4;
+}
+
+.ranking-table td {
+  font-size: 14px;
+  font-weight: 700;
+  color: #776e65;
+  padding: 10px 4px;
+  border-bottom: 1px solid #f2ece4;
+}
+
+/* 1位〜3位のバッジ装飾 */
+.rank-badge-1 { color: #f2613f; font-weight: 900; }
+.rank-badge-2 { color: #e88d38; font-weight: 800; }
+.rank-badge-3 { color: #e5b338; font-weight: 800; }
+
+.tile-badge {
+  background: #bbada0;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.no-data {
+  display: none;
+  text-align: center;
+  font-size: 13px;
+  color: #a39485;
+  padding: 24px 0;
+}
