@@ -28,10 +28,9 @@
       </div>
     </header>
 
-    <!-- コントロールボタン -->
+    <!-- コントロールボタン（2つに集約してすっきり） -->
     <div class="controls">
       <button id="undo-btn" class="btn">1手戻す</button>
-      <button id="ranking-btn" class="btn">ランキング</button>
       <button id="restart-btn" class="btn primary">やり直す</button>
     </div>
 
@@ -51,32 +50,6 @@
         <div class="lower">
           <button id="retry-button" class="btn primary">もう一度遊ぶ</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ランキングモーダル（画面全体オーバーレイ） -->
-  <div id="ranking-modal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2>👑 ハイスコア ランキング</h2>
-        <button id="close-ranking-btn" class="close-btn">&times;</button>
-      </div>
-      <div class="modal-body">
-        <table class="ranking-table">
-          <thead>
-            <tr>
-              <th>順位</th>
-              <th>スコア</th>
-              <th>最大</th>
-              <th>日付</th>
-            </tr>
-          </thead>
-          <tbody id="ranking-list">
-            <!-- JSで動的生成 -->
-          </tbody>
-        </table>
-        <div id="no-ranking-text" class="no-data">まだ記録がありません</div>
       </div>
     </div>
   </div>
