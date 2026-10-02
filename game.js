@@ -41,7 +41,11 @@ class GameManager {
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
 
-    // 2から65536まで極めた市販級グラデーション＆ネオングローマップ
+    // やり直し確認モーダル関連
+    this.confirmModal = document.getElementById('confirm-modal');
+    this.cancelRestartBtn = document.getElementById('cancel-restart-btn');
+    this.confirmRestartBtn = document.getElementById('confirm-restart-btn');
+
     this.tileStyles = {
       2:     { bg: 'linear-gradient(180deg, #f2ece4 0%, #eee4da 100%)', text: '#776e65', shadow: '0 3px 0 #ded2c3' },
       4:     { bg: 'linear-gradient(180deg, #f0e6d2 0%, #ede0c8 100%)', text: '#776e65', shadow: '0 3px 0 #d9ccaF' },
@@ -54,7 +58,6 @@ class GameManager {
       512:   { bg: 'linear-gradient(180deg, #edcb59 0%, #edc850 100%)', text: '#ffffff', shadow: '0 3px 0 #caa632, 0 0 24px rgba(237, 200, 80, 0.8)' },
       1024:  { bg: 'linear-gradient(180deg, #edc849 0%, #edc53f 100%)', text: '#ffffff', shadow: '0 3px 0 #caa320, 0 0 28px rgba(237, 197, 63, 0.9)' },
       2048:  { bg: 'linear-gradient(180deg, #edc436 0%, #edc22e 100%)', text: '#ffffff', shadow: '0 3px 0 #ca9f10, 0 0 35px rgba(237, 194, 46, 1)' },
-      // 4096以降：覚醒ネオン＆クリスタルカラー
       4096:  { bg: 'linear-gradient(180deg, #38ef7d 0%, #11998e 100%)', text: '#ffffff', shadow: '0 3px 0 #0c726a, 0 0 30px rgba(56, 239, 125, 0.9)' },
       8192:  { bg: 'linear-gradient(180deg, #4facfe 0%, #00f2fe 100%)', text: '#ffffff', shadow: '0 3px 0 #00b4d8, 0 0 32px rgba(0, 242, 254, 0.9)' },
       16384: { bg: 'linear-gradient(180deg, #b224ef 0%, #7579ff 100%)', text: '#ffffff', shadow: '0 3px 0 #5b5ee6, 0 0 34px rgba(178, 36, 239, 0.9)' },
@@ -90,6 +93,7 @@ class GameManager {
     this.keepPlaying = false;
     this.isMoving = false;
     this.hideMessage();
+    this.hideConfirm();
     StorageManager.clearHistory();
     this.updateScore(0, false);
     this.bestScoreDisplay.textContent = StorageManager.getBestScore(this.size);
@@ -115,6 +119,24 @@ class GameManager {
       this.keepPlayingBtn.style.display = 'none';
     }
     this.messageBox.style.display = 'flex';
+  }
+
+  // やり直し確認モーダルの開閉
+  showConfirm() {
+    this.confirmModal.style.display = 'flex';
+  }
+
+  hideConfirm() {
+    this.confirmModal.style.display = 'none';
+  }
+
+  // やり直すボタンを押したときのハンドラ（スコアがある場合のみ確認）
+  handleRestartRequest() {
+    if (this.score > 0 && !this.over) {
+      this.showConfirm();
+    } else {
+      this.initGame();
+    }
   }
 
   getGridState() {
@@ -181,7 +203,6 @@ class GameManager {
       el.style.transition = 'transform 100ms ease-in-out';
       el.style.willChange = 'transform';
 
-      // 桁数に応じた文字縮小（5桁・6桁でも絶対にはみ出さない）
       let fontSize = 36;
       if (this.size === 2) fontSize = 56;
       if (this.size === 5) fontSize = 26;
@@ -229,7 +250,8 @@ class GameManager {
   }
 
   move(direction) {
-    if (this.over || this.isMoving) return;
+    // モーダル表示中やアニメーション中は操作無効
+    if (this.over || this.isMoving || this.confirmModal.style.display === 'flex') return;
 
     const vectors = {
       up: { x: 0, y: -1 },
@@ -327,7 +349,7 @@ class GameManager {
   }
 
   undo() {
-    if (this.over || this.isMoving) return;
+    if (this.over || this.isMoving || this.confirmModal.style.display === 'flex') return;
     const prevState = StorageManager.popState();
     if (!prevState) return;
 
@@ -369,8 +391,19 @@ class GameManager {
   }
 
   initEventListeners() {
-    this.restartBtn.addEventListener('click', () => this.initGame());
+    // やり直すボタン：確認を挟む
+    this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
+    
+    // ゲームオーバー時の「もう一度」ボタン：確認なしで即リスタート
     this.retryBtn.addEventListener('click', () => this.initGame());
+    
+    // 確認モーダル操作
+    this.cancelRestartBtn.addEventListener('click', () => this.hideConfirm());
+    this.confirmRestartBtn.addEventListener('click', () => this.initGame());
+    this.confirmModal.addEventListener('click', (e) => {
+      if (e.target === this.confirmModal) this.hideConfirm();
+    });
+
     this.undoBtn.addEventListener('click', () => this.undo());
 
     this.keepPlayingBtn.addEventListener('click', () => {
