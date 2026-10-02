@@ -41,19 +41,25 @@ class GameManager {
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
 
-    // リッチなグラデーション & シャドウマップ
+    // 2から65536まで極めた市販級グラデーション＆ネオングローマップ
     this.tileStyles = {
-      2:    { bg: 'linear-gradient(180deg, #f2ece4 0%, #eee4da 100%)', text: '#776e65', shadow: '0 3px 0 #ded2c3' },
-      4:    { bg: 'linear-gradient(180deg, #f0e6d2 0%, #ede0c8 100%)', text: '#776e65', shadow: '0 3px 0 #d9ccaF' },
-      8:    { bg: 'linear-gradient(180deg, #f7ba82 0%, #f2b179 100%)', text: '#ffffff', shadow: '0 3px 0 #d99962' },
-      16:   { bg: 'linear-gradient(180deg, #faa171 0%, #f59563 100%)', text: '#ffffff', shadow: '0 3px 0 #da7d4d' },
-      32:   { bg: 'linear-gradient(180deg, #fa8a6e 0%, #f67c5f 100%)', text: '#ffffff', shadow: '0 3px 0 #d86246' },
-      64:   { bg: 'linear-gradient(180deg, #fa6d4b 0%, #f65e3b 100%)', text: '#ffffff', shadow: '0 3px 0 #d44524' },
-      128:  { bg: 'linear-gradient(180deg, #edd27c 0%, #edcf72 100%)', text: '#ffffff', shadow: '0 3px 0 #cdb055, 0 0 16px rgba(237, 207, 114, 0.6)' },
-      256:  { bg: 'linear-gradient(180deg, #edcf6b 0%, #edcc61 100%)', text: '#ffffff', shadow: '0 3px 0 #cdad43, 0 0 20px rgba(237, 204, 97, 0.7)' },
-      512:  { bg: 'linear-gradient(180deg, #edcb59 0%, #edc850 100%)', text: '#ffffff', shadow: '0 3px 0 #caa632, 0 0 24px rgba(237, 200, 80, 0.8)' },
-      1024: { bg: 'linear-gradient(180deg, #edc849 0%, #edc53f 100%)', text: '#ffffff', shadow: '0 3px 0 #caa320, 0 0 28px rgba(237, 197, 63, 0.9)' },
-      2048: { bg: 'linear-gradient(180deg, #edc436 0%, #edc22e 100%)', text: '#ffffff', shadow: '0 3px 0 #ca9f10, 0 0 35px rgba(237, 194, 46, 1)' }
+      2:     { bg: 'linear-gradient(180deg, #f2ece4 0%, #eee4da 100%)', text: '#776e65', shadow: '0 3px 0 #ded2c3' },
+      4:     { bg: 'linear-gradient(180deg, #f0e6d2 0%, #ede0c8 100%)', text: '#776e65', shadow: '0 3px 0 #d9ccaF' },
+      8:     { bg: 'linear-gradient(180deg, #f7ba82 0%, #f2b179 100%)', text: '#ffffff', shadow: '0 3px 0 #d99962' },
+      16:    { bg: 'linear-gradient(180deg, #faa171 0%, #f59563 100%)', text: '#ffffff', shadow: '0 3px 0 #da7d4d' },
+      32:    { bg: 'linear-gradient(180deg, #fa8a6e 0%, #f67c5f 100%)', text: '#ffffff', shadow: '0 3px 0 #d86246' },
+      64:    { bg: 'linear-gradient(180deg, #fa6d4b 0%, #f65e3b 100%)', text: '#ffffff', shadow: '0 3px 0 #d44524' },
+      128:   { bg: 'linear-gradient(180deg, #edd27c 0%, #edcf72 100%)', text: '#ffffff', shadow: '0 3px 0 #cdb055, 0 0 16px rgba(237, 207, 114, 0.6)' },
+      256:   { bg: 'linear-gradient(180deg, #edcf6b 0%, #edcc61 100%)', text: '#ffffff', shadow: '0 3px 0 #cdad43, 0 0 20px rgba(237, 204, 97, 0.7)' },
+      512:   { bg: 'linear-gradient(180deg, #edcb59 0%, #edc850 100%)', text: '#ffffff', shadow: '0 3px 0 #caa632, 0 0 24px rgba(237, 200, 80, 0.8)' },
+      1024:  { bg: 'linear-gradient(180deg, #edc849 0%, #edc53f 100%)', text: '#ffffff', shadow: '0 3px 0 #caa320, 0 0 28px rgba(237, 197, 63, 0.9)' },
+      2048:  { bg: 'linear-gradient(180deg, #edc436 0%, #edc22e 100%)', text: '#ffffff', shadow: '0 3px 0 #ca9f10, 0 0 35px rgba(237, 194, 46, 1)' },
+      // 4096以降：覚醒ネオン＆クリスタルカラー
+      4096:  { bg: 'linear-gradient(180deg, #38ef7d 0%, #11998e 100%)', text: '#ffffff', shadow: '0 3px 0 #0c726a, 0 0 30px rgba(56, 239, 125, 0.9)' },
+      8192:  { bg: 'linear-gradient(180deg, #4facfe 0%, #00f2fe 100%)', text: '#ffffff', shadow: '0 3px 0 #00b4d8, 0 0 32px rgba(0, 242, 254, 0.9)' },
+      16384: { bg: 'linear-gradient(180deg, #b224ef 0%, #7579ff 100%)', text: '#ffffff', shadow: '0 3px 0 #5b5ee6, 0 0 34px rgba(178, 36, 239, 0.9)' },
+      32768: { bg: 'linear-gradient(180deg, #ff0844 0%, #ffb199 100%)', text: '#ffffff', shadow: '0 3px 0 #d90437, 0 0 36px rgba(255, 8, 68, 0.95)' },
+      65536: { bg: 'linear-gradient(180deg, #1f1c2c 0%, #928dab 100%)', text: '#ffd700', shadow: '0 3px 0 #12101a, 0 0 40px rgba(255, 215, 0, 1)' }
     };
 
     this.isMoving = false;
@@ -155,9 +161,9 @@ class GameManager {
       el.textContent = tile.value;
 
       const style = this.tileStyles[tile.value] || {
-        bg: 'linear-gradient(180deg, #444139 0%, #2b2a24 100%)',
-        text: '#ffffff',
-        shadow: '0 3px 0 #1a1915'
+        bg: 'linear-gradient(180deg, #111111 0%, #000000 100%)',
+        text: '#00ffff',
+        shadow: '0 3px 0 #000000, 0 0 40px rgba(0, 255, 255, 1)'
       };
 
       el.style.position = 'absolute';
@@ -175,13 +181,15 @@ class GameManager {
       el.style.transition = 'transform 100ms ease-in-out';
       el.style.willChange = 'transform';
 
-      // 盤面ごとのフォント自動スケール
+      // 桁数に応じた文字縮小（5桁・6桁でも絶対にはみ出さない）
       let fontSize = 36;
       if (this.size === 2) fontSize = 56;
       if (this.size === 5) fontSize = 26;
       if (this.size === 6) fontSize = 20;
+
       if (tile.value >= 100 && this.size >= 4) fontSize = Math.floor(fontSize * 0.82);
       if (tile.value >= 1000) fontSize = Math.floor(fontSize * 0.72);
+      if (tile.value >= 10000) fontSize = Math.floor(fontSize * 0.60);
       el.style.fontSize = `${fontSize}px`;
 
       const step = 100 + (gapPercent / tilePercent) * 100;
@@ -204,7 +212,6 @@ class GameManager {
     });
   }
 
-  // スコア更新 & 「+4」「+8」ポップアップ演出
   updateScore(add, showAddition = true) {
     this.score += add;
     this.scoreDisplay.textContent = this.score;
