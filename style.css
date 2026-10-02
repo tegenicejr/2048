@@ -10,7 +10,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  touch-action: none; /* 盤面の誤スクロール防止は本体側に適用 */
+  touch-action: none;
 }
 
 body {
@@ -25,7 +25,6 @@ body {
   padding: env(safe-area-inset-top, 10px) env(safe-area-inset-right, 10px) env(safe-area-inset-bottom, 10px) env(safe-area-inset-left, 10px);
 }
 
-/* すべてのボタン・リンクでタップを確実に通す設定 */
 button, a {
   touch-action: manipulation;
   cursor: pointer;
@@ -79,7 +78,6 @@ button, a {
   border-radius: 20px;
 }
 
-/* 2048シンボルタイル（上下の動きを完全停止・どっしり固定） */
 .start-hero-tile {
   width: 96px;
   height: 96px;
@@ -92,8 +90,6 @@ button, a {
   align-items: center;
   border-radius: 18px;
   box-shadow: 0 8px 0 #ca9f10, 0 12px 30px rgba(237, 194, 46, 0.55);
-  animation: none !important;
-  transform: none !important;
 }
 
 .start-title {
@@ -211,17 +207,21 @@ button, a {
 .header-top {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
+/* タイトルへ戻るボタン */
 .back-link {
+  background: none;
+  border: none;
   font-size: 13px;
   color: #8f7a66;
-  text-decoration: none;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 2px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 0;
   transition: opacity 0.2s;
 }
 
@@ -229,13 +229,36 @@ button, a {
   opacity: 0.6;
 }
 
+/* 2048タイトルとミニパネルの横並び配置 */
+.title-with-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .title {
-  font-size: clamp(38px, 9vw, 56px);
+  font-size: clamp(34px, 8.5vw, 50px);
   font-weight: 900;
   color: #776e65;
   line-height: 0.9;
   letter-spacing: -2px;
   text-shadow: 0 2px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ヘッダーの2048ミニパネル */
+.header-tile-panel {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(180deg, #edc436 0%, #edc22e 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 #ca9f10, 0 4px 12px rgba(237, 194, 46, 0.5);
+  flex-shrink: 0;
 }
 
 .scores-container {
