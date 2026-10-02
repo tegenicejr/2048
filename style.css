@@ -62,7 +62,7 @@ body {
   letter-spacing: -2px;
 }
 
-/* スコアボックス */
+/* スコアボックス（角丸・高級感のある配色） */
 .scores-container {
   display: flex;
   gap: 8px;
@@ -93,7 +93,7 @@ body {
   line-height: 1.2;
 }
 
-/* ボタン群 */
+/* コントロールボタン群（2ボタン） */
 .controls {
   display: flex;
   gap: 10px;
@@ -106,7 +106,7 @@ body {
   border: none;
   border-radius: 6px;
   padding: 12px 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 3px 0 #736353;
@@ -123,7 +123,7 @@ body {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* 盤面トレイ */
+/* 4x4 盤面ボード本体（重厚なトレイ感） */
 .board-wrapper {
   position: relative;
   width: 100%;
@@ -134,6 +134,7 @@ body {
   box-shadow: 0 6px 12px rgba(187, 173, 160, 0.3), inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* 空きマスのグリッド背景 */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -149,6 +150,7 @@ body {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
+/* 動くタイルが配置される絶対位置レイヤー */
 .tile-container {
   position: absolute;
   top: 12px;
@@ -158,7 +160,7 @@ body {
   pointer-events: none;
 }
 
-/* ゲームオーバー・勝利モーダル */
+/* ゲームオーバー・勝利モーダル（盤面の上に重なるやつ） */
 .game-message {
   display: none;
   position: absolute;
@@ -175,11 +177,11 @@ body {
   justify-content: center;
   text-align: center;
   border-radius: 10px;
-  animation: fade-in 400ms ease forwards;
+  animation: fade-in 300ms ease forwards;
 }
 
 .game-message p {
-  font-size: 38px;
+  font-size: 36px;
   font-weight: 800;
   color: #776e65;
   margin-bottom: 16px;
@@ -212,111 +214,4 @@ body {
     opacity: 1;
     transform: scale(1);
   }
-}
-/* モーダル共通オーバーレイ背景 */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  z-index: 200;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-/* カード本体 */
-.modal-card {
-  background: #faf8ef;
-  width: 100%;
-  max-width: 380px;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  animation: card-appear 200ms ease-out forwards;
-}
-
-@keyframes card-appear {
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #eee4da;
-  padding-bottom: 10px;
-}
-
-.modal-header h2 {
-  font-size: 18px;
-  font-weight: 800;
-  color: #776e65;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 26px;
-  line-height: 1;
-  color: #8f7a66;
-  cursor: pointer;
-  padding: 0 4px;
-}
-
-.close-btn:active {
-  transform: scale(0.9);
-}
-
-/* ランキング表 */
-.ranking-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
-}
-
-.ranking-table th {
-  font-size: 12px;
-  font-weight: 700;
-  color: #a39485;
-  padding: 8px 4px;
-  border-bottom: 1px solid #d8cfc4;
-}
-
-.ranking-table td {
-  font-size: 14px;
-  font-weight: 700;
-  color: #776e65;
-  padding: 10px 4px;
-  border-bottom: 1px solid #f2ece4;
-}
-
-/* 1位〜3位のバッジ装飾 */
-.rank-badge-1 { color: #f2613f; font-weight: 900; }
-.rank-badge-2 { color: #e88d38; font-weight: 800; }
-.rank-badge-3 { color: #e5b338; font-weight: 800; }
-
-.tile-badge {
-  background: #bbada0;
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-}
-
-.no-data {
-  display: none;
-  text-align: center;
-  font-size: 13px;
-  color: #a39485;
-  padding: 24px 0;
 }
