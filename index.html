@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css?v=how_to_play">
+  <link rel="stylesheet" href="style.css?v=line_break_fix">
 </head>
 <body>
 
@@ -35,7 +35,7 @@
       <button class="mode-btn" data-size="6">6×6</button>
     </div>
 
-    <!-- コントロールボタン：遊び方・1手戻す・やり直す -->
+    <!-- コントロールボタン -->
     <div class="controls">
       <button id="how-to-play-btn" class="btn sub-btn">あそびかた</button>
       <button id="undo-btn" class="btn">1手戻す</button>
@@ -57,12 +57,14 @@
     </div>
   </div>
 
-  <!-- やり直し確認モーダル -->
+  <!-- やり直し確認モーダル（自然な位置で改行） -->
   <div id="confirm-modal" class="confirm-overlay">
     <div class="confirm-card">
       <div class="confirm-icon">⚠️</div>
       <div class="confirm-title">やり直しますか？</div>
-      <div class="confirm-desc">現在のスコアと盤面の進行状況がリセットされます。</div>
+      <div class="confirm-desc">
+        現在のスコアと盤面の進行状況が<br>リセットされます。
+      </div>
       <div class="confirm-actions">
         <button id="cancel-restart-btn" class="btn">キャンセル</button>
         <button id="confirm-restart-btn" class="btn primary">やり直す</button>
@@ -79,7 +81,6 @@
       </div>
 
       <div class="help-steps">
-        <!-- STEP 1: 動かす -->
         <div class="help-item">
           <div class="help-badge">1</div>
           <div class="help-visual">
@@ -91,7 +92,6 @@
           </div>
         </div>
 
-        <!-- STEP 2: 合体 -->
         <div class="help-item">
           <div class="help-badge">2</div>
           <div class="help-visual merge-demo">
@@ -107,7 +107,6 @@
           </div>
         </div>
 
-        <!-- STEP 3: 目標 -->
         <div class="help-item">
           <div class="help-badge">3</div>
           <div class="help-visual">
@@ -126,6 +125,6 @@
 
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js?v=how_to_play"></script>
+  <script src="game.js?v=line_break_fix"></script>
 </body>
 </html>
