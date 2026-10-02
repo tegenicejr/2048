@@ -28,7 +28,7 @@ class GameManager {
     this.over = false;
     this.keepPlaying = false;
     this.tiles = [];
-    this.isGameStarted = false; // スタート画面の表示制御
+    this.isGameStarted = false;
 
     this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
@@ -119,7 +119,6 @@ class GameManager {
     this.render();
   }
 
-  // スタート画面を閉じてゲームプレイを開始
   startGame() {
     this.isGameStarted = true;
     this.startScreen.classList.add('hidden');
@@ -127,12 +126,10 @@ class GameManager {
     if (typeof sounds !== 'undefined') sounds.playMove();
   }
 
-  // 盤面サイズ同期
   changeSize(newSize) {
     if (newSize === this.size) return;
     this.size = newSize;
 
-    // ゲーム内とスタート画面のボタン両方を同期
     this.modeButtons.forEach(b => {
       b.classList.toggle('active', parseInt(b.dataset.size) === newSize);
     });
@@ -445,14 +442,30 @@ class GameManager {
   }
 
   initEventListeners() {
-    // スタート画面のイベント
-    this.startGameBtn.addEventListener('click', () => this.startGame());
-    this.startHelpBtn.addEventListener('click', () => this.showHelp());
+    // スタートボタン（クリックとタッチ両対応で即時発火）
+    const handleStart = (e) => {
+      e.preventDefault();
+      this.startGame();
+    };
+    this.startGameBtn.addEventListener('click', handleStart);
+    this.startGameBtn.addEventListener('touchend', handleStart);
 
+    // スタート画面のあそびかたボタン
+    const handleStartHelp = (e) => {
+      e.preventDefault();
+      this.showHelp();
+    };
+    this.startHelpBtn.addEventListener('click', handleStartHelp);
+    this.startHelpBtn.addEventListener('touchend', handleStartHelp);
+
+    // スタート画面の盤面サイズ変更ボタン
     this.startModeButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        this.changeSize(parseInt(e.target.dataset.size));
-      });
+      const handleMode = (e) => {
+        e.preventDefault();
+        this.changeSize(parseInt(btn.dataset.size));
+      };
+      btn.addEventListener('click', handleMode);
+      btn.addEventListener('touchend', handleMode);
     });
 
     // メインゲーム画面のイベント
