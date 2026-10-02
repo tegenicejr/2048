@@ -35,7 +35,6 @@ class GameManager {
     this.isGameStarted = false;
     this.pendingAction = null;
 
-    // 音声ミュート状態の初期化
     this.isMuted = localStorage.getItem('2048_muted') === 'true';
 
     this.gridContainer = document.getElementById('grid-container');
@@ -50,16 +49,25 @@ class GameManager {
     this.restartBtn = document.getElementById('restart-btn');
     this.messageBox = document.getElementById('game-message');
     this.messageText = document.getElementById('game-message-text');
+    this.messageStatsSummary = document.getElementById('message-stats-summary');
+    this.shareScoreBtn = document.getElementById('share-score-button');
     this.retryBtn = document.getElementById('retry-button');
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
 
-    // スタート画面＆タイトルへ戻るボタン
+    // スタート画面＆タイトルへ戻る
     this.startScreen = document.getElementById('start-screen');
     this.startGameBtn = document.getElementById('start-game-btn');
     this.startHelpBtn = document.getElementById('start-help-btn');
+    this.collectionBtn = document.getElementById('collection-btn');
     this.startModeButtons = document.querySelectorAll('.start-mode-btn');
     this.backToTitleBtn = document.getElementById('back-to-title-btn');
+
+    // コレクションモーダル
+    this.collectionModal = document.getElementById('collection-modal');
+    this.collectionGrid = document.getElementById('collection-grid');
+    this.closeCollectionBtn = document.getElementById('close-collection-btn');
+    this.closeCollectionBottomBtn = document.getElementById('close-collection-bottom-btn');
 
     // 確認モーダル
     this.confirmModal = document.getElementById('confirm-modal');
@@ -69,10 +77,12 @@ class GameManager {
     this.confirmRestartBtn = document.getElementById('confirm-restart-btn');
 
     // あそびかたモーダル
-    this.howToPlayBtn = document.getElementById('how-to-play-btn');
     this.helpModal = document.getElementById('help-modal');
+    this.howToPlayBtn = document.getElementById('how-to-play-btn');
     this.closeHelpBtn = document.getElementById('close-help-btn');
     this.gotItBtn = document.getElementById('got-it-btn');
+
+    this.allTileValues = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536];
 
     this.tileStyles = {
       2:     { bg: 'linear-gradient(180deg, #f2ece4 0%, #eee4da 100%)', text: '#776e65', shadow: '0 3px 0 #ded2c3' },
@@ -95,12 +105,34 @@ class GameManager {
 
     this.isMoving = false;
     this.hasMoved = false;
+
     this.updateSoundButtonState();
+    this.checkSavedGame();
     this.initEventListeners();
-    this.initGame();
+    this.initGameFromSaveOrNew();
   }
 
-  // サウンドボタン表示同期
+  // 保存データの確認とスタートボタン文言の切り替え
+  checkSavedGame() {
+    const saved = StorageManager.loadCurrentGame();
+    if (saved && !saved.over) {
+      this.startGameBtn.textContent = 'つづきから';
+      this.size = saved.size || 4;
+      this.syncModeButtons(this.size);
+    } else {
+      this.startGameBtn.textContent = 'ゲームスタート';
+    }
+  }
+
+  syncModeButtons(size) {
+    this.modeButtons.forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.size) === size);
+    });
+    this.startModeButtons.forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.size) === size);
+    });
+  }
+
   updateSoundButtonState() {
     if (this.isMuted) {
       this.soundToggleBtn.textContent = '🔇';
@@ -126,13 +158,13 @@ class GameManager {
     else if (type === 'gameOver') sounds.playGameOver();
   }
 
-  // タイマー管理
   startTimer() {
     if (this.isTimerRunning) return;
     this.isTimerRunning = true;
     this.timerInterval = setInterval(() => {
       this.seconds++;
       this.renderTime();
+      this.autoSave();
     }, 1000);
   }
 
@@ -170,6 +202,31 @@ class GameManager {
     }
   }
 
+  // オートセーブからの復旧または新規開始
+  initGameFromSaveOrNew() {
+    const saved = StorageManager.loadCurrentGame();
+    if (saved && !saved.over) {
+      this.size = saved.size;
+      this.setupGrid();
+      this.score = saved.score;
+      this.moves = saved.moves || 0;
+      this.seconds = saved.seconds || 0;
+      this.won = saved.won || false;
+      this.over = false;
+      this.keepPlaying = saved.keepPlaying || false;
+      this.hasMoved = true;
+
+      this.tiles = (saved.tiles || []).map(t => new Tile({ x: t.x, y: t.y }, t.value));
+      this.scoreDisplay.textContent = this.score;
+      this.movesDisplay.textContent = this.moves;
+      this.renderTime();
+      this.bestScoreDisplay.textContent = StorageManager.getBestScore(this.size);
+      this.render();
+    } else {
+      this.initGame();
+    }
+  }
+
   initGame() {
     this.setupGrid();
     this.tiles = [];
@@ -186,7 +243,9 @@ class GameManager {
     this.hideMessage();
     this.hideConfirm();
     this.hideHelp();
+    this.hideCollection();
     StorageManager.clearHistory();
+    StorageManager.clearCurrentGame();
     this.updateScore(0, false);
     this.bestScoreDisplay.textContent = StorageManager.getBestScore(this.size);
 
@@ -195,13 +254,34 @@ class GameManager {
     this.render();
   }
 
+  // オートセーブ実行
+  autoSave() {
+    if (this.over) {
+      StorageManager.clearCurrentGame();
+      return;
+    }
+    const data = {
+      size: this.size,
+      score: this.score,
+      moves: this.moves,
+      seconds: this.seconds,
+      won: this.won,
+      keepPlaying: this.keepPlaying,
+      over: this.over,
+      tiles: this.tiles.map(t => ({ x: t.x, y: t.y, value: t.value }))
+    };
+    StorageManager.saveCurrentGame(data);
+  }
+
   showStartScreen() {
     this.isGameStarted = false;
     this.stopTimer();
+    this.checkSavedGame();
     this.startScreen.classList.remove('hidden');
     this.hideMessage();
     this.hideConfirm();
     this.hideHelp();
+    this.hideCollection();
   }
 
   startGame() {
@@ -209,19 +289,15 @@ class GameManager {
     this.startScreen.classList.add('hidden');
     this.triggerHaptic('light');
     this.playSound('move');
+    if (this.hasMoved) {
+      this.startTimer();
+    }
   }
 
   changeSize(newSize) {
     if (newSize === this.size) return;
     this.size = newSize;
-
-    this.modeButtons.forEach(b => {
-      b.classList.toggle('active', parseInt(b.dataset.size) === newSize);
-    });
-    this.startModeButtons.forEach(b => {
-      b.classList.toggle('active', parseInt(b.dataset.size) === newSize);
-    });
-
+    this.syncModeButtons(newSize);
     this.initGame();
   }
 
@@ -230,8 +306,18 @@ class GameManager {
     this.messageBox.classList.remove('game-won');
   }
 
+  getMaxTileValue() {
+    if (this.tiles.length === 0) return 0;
+    return Math.max(...this.tiles.map(t => t.value));
+  }
+
   showMessage(won) {
     this.stopTimer();
+    StorageManager.clearCurrentGame();
+
+    const maxTile = this.getMaxTileValue();
+    this.messageStatsSummary.textContent = `SCORE: ${this.score} | 最高タイル: ${maxTile} | 手数: ${this.moves} | タイム: ${this.timeDisplay.textContent}`;
+
     if (won) {
       this.messageText.textContent = 'You Win! 2048達成!';
       this.messageBox.classList.add('game-won');
@@ -242,6 +328,50 @@ class GameManager {
       this.keepPlayingBtn.style.display = 'none';
     }
     this.messageBox.style.display = 'flex';
+  }
+
+  // X（旧Twitter）への共有
+  shareResult() {
+    const maxTile = this.getMaxTileValue();
+    const isWin = this.won ? '【2048達成！】' : '【ゲームオーバー】';
+    const text = `${isWin} 2048をプレイしたよ！\nスコア: ${this.score}\n盤面: ${this.size}×${this.size}\n最高タイル: ${maxTile}\n手数: ${this.moves}手 | タイム: ${this.timeDisplay.textContent}\n#2048 #GamesClubhouse\n`;
+    const url = 'https://tegenicejr.github.io/2048/';
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank');
+  }
+
+  // タイルコレクションのレンダリング
+  renderCollection() {
+    this.collectionGrid.innerHTML = '';
+    const unlocked = StorageManager.getUnlockedTiles();
+
+    this.allTileValues.forEach(val => {
+      const item = document.createElement('div');
+      item.className = 'collection-item';
+
+      const isUnlocked = unlocked.includes(val);
+      if (isUnlocked) {
+        const style = this.tileStyles[val] || { bg: '#333', text: '#fff', shadow: 'none' };
+        item.style.background = style.bg;
+        item.style.color = style.text;
+        item.style.boxShadow = style.shadow;
+        item.textContent = val;
+      } else {
+        item.classList.add('locked');
+        item.textContent = '?';
+      }
+
+      this.collectionGrid.appendChild(item);
+    });
+  }
+
+  showCollection() {
+    this.renderCollection();
+    this.collectionModal.style.display = 'flex';
+  }
+
+  hideCollection() {
+    this.collectionModal.style.display = 'none';
   }
 
   showConfirm(title, desc, confirmText, action) {
@@ -297,10 +427,10 @@ class GameManager {
     if (this.score > 0 || this.hasMoved) {
       this.showConfirm(
         'タイトルへ戻りますか？',
-        'タイトルに戻ると、<br>現在のスコアと進行状況がリセットされます。',
+        'タイトルに戻ると、<br>現在の進行状況は自動保存されます。',
         'もどる',
         () => {
-          this.initGame();
+          this.autoSave();
           this.showStartScreen();
         }
       );
@@ -327,9 +457,11 @@ class GameManager {
     }
     if (emptyCells.length > 0) {
       const pos = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-      const tile = new Tile(pos, Math.random() < 0.9 ? 2 : 4);
+      const val = Math.random() < 0.9 ? 2 : 4;
+      const tile = new Tile(pos, val);
       tile.isNew = true;
       this.tiles.push(tile);
+      StorageManager.unlockTile(val);
     }
   }
 
@@ -423,7 +555,8 @@ class GameManager {
     return (
       !this.isGameStarted ||
       (this.confirmModal && this.confirmModal.style.display === 'flex') ||
-      (this.helpModal && this.helpModal.style.display === 'flex')
+      (this.helpModal && this.helpModal.style.display === 'flex') ||
+      (this.collectionModal && this.collectionModal.style.display === 'flex')
     );
   }
 
@@ -481,6 +614,9 @@ class GameManager {
             scoreGained += target.value;
             moved = true;
 
+            // コレクションへの解放
+            StorageManager.unlockTile(target.value);
+
             if (target.value === 2048 && !this.won) this.won = true;
 
             tile.mergedInto = target;
@@ -502,7 +638,7 @@ class GameManager {
       this.hasMoved = true;
       this.moves++;
       this.movesDisplay.textContent = this.moves;
-      this.startTimer(); // 最初の移動でタイマースタート
+      this.startTimer();
 
       this.tiles = nextTiles;
       this.render();
@@ -522,6 +658,7 @@ class GameManager {
         this.updateScore(scoreGained);
         this.addRandomTile();
         this.render();
+        this.autoSave(); // 自動保存
         this.checkGameState();
         this.isMoving = false;
       }, 105);
@@ -552,6 +689,7 @@ class GameManager {
 
     this.hideMessage();
     this.render();
+    this.autoSave();
   }
 
   checkGameState() {
@@ -577,10 +715,9 @@ class GameManager {
   }
 
   initEventListeners() {
-    // サウンドトグルボタン
     this.soundToggleBtn.addEventListener('click', () => this.toggleSound());
 
-    // スタート画面イベント
+    // スタート画面
     const handleStart = (e) => {
       e.preventDefault();
       this.startGame();
@@ -595,6 +732,20 @@ class GameManager {
     this.startHelpBtn.addEventListener('click', handleStartHelp);
     this.startHelpBtn.addEventListener('touchend', handleStartHelp);
 
+    // コレクションボタン
+    const handleCollection = (e) => {
+      e.preventDefault();
+      this.showCollection();
+    };
+    this.collectionBtn.addEventListener('click', handleCollection);
+    this.collectionBtn.addEventListener('touchend', handleCollection);
+
+    this.closeCollectionBtn.addEventListener('click', () => this.hideCollection());
+    this.closeCollectionBottomBtn.addEventListener('click', () => this.hideCollection());
+    this.collectionModal.addEventListener('click', (e) => {
+      if (e.target === this.collectionModal) this.hideCollection();
+    });
+
     this.startModeButtons.forEach(btn => {
       const handleMode = (e) => {
         e.preventDefault();
@@ -604,12 +755,11 @@ class GameManager {
       btn.addEventListener('touchend', handleMode);
     });
 
-    // ‹ タイトルへ ボタン
     this.backToTitleBtn.addEventListener('click', () => this.handleBackToTitleRequest());
 
-    // ゲーム操作ボタン
     this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
     this.retryBtn.addEventListener('click', () => this.initGame());
+    this.shareScoreBtn.addEventListener('click', () => this.shareResult());
 
     this.howToPlayBtn.addEventListener('click', () => this.showHelp());
     this.closeHelpBtn.addEventListener('click', () => this.hideHelp());
@@ -634,6 +784,7 @@ class GameManager {
       this.keepPlaying = true;
       this.hideMessage();
       this.startTimer();
+      this.autoSave();
     });
 
     this.modeButtons.forEach(btn => {
