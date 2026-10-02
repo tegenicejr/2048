@@ -41,10 +41,16 @@ class GameManager {
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
 
-    // やり直し確認モーダル関連
+    // やり直し確認モーダル
     this.confirmModal = document.getElementById('confirm-modal');
     this.cancelRestartBtn = document.getElementById('cancel-restart-btn');
     this.confirmRestartBtn = document.getElementById('confirm-restart-btn');
+
+    // あそびかたモーダル
+    this.howToPlayBtn = document.getElementById('how-to-play-btn');
+    this.helpModal = document.getElementById('help-modal');
+    this.closeHelpBtn = document.getElementById('close-help-btn');
+    this.gotItBtn = document.getElementById('got-it-btn');
 
     this.tileStyles = {
       2:     { bg: 'linear-gradient(180deg, #f2ece4 0%, #eee4da 100%)', text: '#776e65', shadow: '0 3px 0 #ded2c3' },
@@ -94,6 +100,7 @@ class GameManager {
     this.isMoving = false;
     this.hideMessage();
     this.hideConfirm();
+    this.hideHelp();
     StorageManager.clearHistory();
     this.updateScore(0, false);
     this.bestScoreDisplay.textContent = StorageManager.getBestScore(this.size);
@@ -121,7 +128,6 @@ class GameManager {
     this.messageBox.style.display = 'flex';
   }
 
-  // やり直し確認モーダルの開閉
   showConfirm() {
     this.confirmModal.style.display = 'flex';
   }
@@ -130,7 +136,15 @@ class GameManager {
     this.confirmModal.style.display = 'none';
   }
 
-  // やり直すボタンを押したときのハンドラ（スコアがある場合のみ確認）
+  // あそびかたモーダルの制御
+  showHelp() {
+    this.helpModal.style.display = 'flex';
+  }
+
+  hideHelp() {
+    this.helpModal.style.display = 'none';
+  }
+
   handleRestartRequest() {
     if (this.score > 0 && !this.over) {
       this.showConfirm();
@@ -249,9 +263,15 @@ class GameManager {
     this.bestScoreDisplay.textContent = best;
   }
 
+  isAnyModalOpen() {
+    return (
+      this.confirmModal.style.display === 'flex' ||
+      this.helpModal.style.display === 'flex'
+    );
+  }
+
   move(direction) {
-    // モーダル表示中やアニメーション中は操作無効
-    if (this.over || this.isMoving || this.confirmModal.style.display === 'flex') return;
+    if (this.over || this.isMoving || this.isAnyModalOpen()) return;
 
     const vectors = {
       up: { x: 0, y: -1 },
@@ -349,7 +369,7 @@ class GameManager {
   }
 
   undo() {
-    if (this.over || this.isMoving || this.confirmModal.style.display === 'flex') return;
+    if (this.over || this.isMoving || this.isAnyModalOpen()) return;
     const prevState = StorageManager.popState();
     if (!prevState) return;
 
@@ -391,20 +411,24 @@ class GameManager {
   }
 
   initEventListeners() {
-    // やり直すボタン：確認を挟む
     this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
-    
-    // ゲームオーバー時の「もう一度」ボタン：確認なしで即リスタート
     this.retryBtn.addEventListener('click', () => this.initGame());
-    
-    // 確認モーダル操作
+    this.undoBtn.addEventListener('click', () => this.undo());
+
+    // あそびかたボタン関連
+    this.howToPlayBtn.addEventListener('click', () => this.showHelp());
+    this.closeHelpBtn.addEventListener('click', () => this.hideHelp());
+    this.gotItBtn.addEventListener('click', () => this.hideHelp());
+    this.helpModal.addEventListener('click', (e) => {
+      if (e.target === this.helpModal) this.hideHelp();
+    });
+
+    // 確認モーダル
     this.cancelRestartBtn.addEventListener('click', () => this.hideConfirm());
     this.confirmRestartBtn.addEventListener('click', () => this.initGame());
     this.confirmModal.addEventListener('click', (e) => {
       if (e.target === this.confirmModal) this.hideConfirm();
     });
-
-    this.undoBtn.addEventListener('click', () => this.undo());
 
     this.keepPlayingBtn.addEventListener('click', () => {
       this.keepPlaying = true;
