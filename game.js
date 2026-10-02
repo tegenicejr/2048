@@ -29,6 +29,7 @@ class GameManager {
     this.keepPlaying = false;
     this.tiles = [];
     this.isGameStarted = false;
+    this.pendingAction = null; // 確認モーダル承認後の実行処理
 
     this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
@@ -42,14 +43,17 @@ class GameManager {
     this.keepPlayingBtn = document.getElementById('keep-playing-button');
     this.modeButtons = document.querySelectorAll('.mode-btn');
 
-    // スタート画面の要素
+    // スタート画面＆タイトルへ戻るボタン
     this.startScreen = document.getElementById('start-screen');
     this.startGameBtn = document.getElementById('start-game-btn');
     this.startHelpBtn = document.getElementById('start-help-btn');
     this.startModeButtons = document.querySelectorAll('.start-mode-btn');
+    this.backToTitleBtn = document.getElementById('back-to-title-btn');
 
-    // やり直し確認モーダル
+    // 確認モーダル
     this.confirmModal = document.getElementById('confirm-modal');
+    this.confirmTitle = document.getElementById('confirm-title');
+    this.confirmDesc = document.getElementById('confirm-desc');
     this.cancelRestartBtn = document.getElementById('cancel-restart-btn');
     this.confirmRestartBtn = document.getElementById('confirm-restart-btn');
 
@@ -119,6 +123,15 @@ class GameManager {
     this.render();
   }
 
+  // スタート画面を開く（タイトルへ戻る）
+  showStartScreen() {
+    this.isGameStarted = false;
+    this.startScreen.classList.remove('hidden');
+    this.hideMessage();
+    this.hideConfirm();
+    this.hideHelp();
+  }
+
   startGame() {
     this.isGameStarted = true;
     this.startScreen.classList.add('hidden');
@@ -158,12 +171,17 @@ class GameManager {
     this.messageBox.style.display = 'flex';
   }
 
-  showConfirm() {
+  showConfirm(title, desc, confirmText, action) {
+    this.confirmTitle.textContent = title || 'やり直しますか？';
+    this.confirmDesc.innerHTML = desc || '現在のスコアと盤面の進行状況が<br>リセットされます。';
+    this.confirmRestartBtn.textContent = confirmText || 'やり直す';
+    this.pendingAction = action;
     this.confirmModal.style.display = 'flex';
   }
 
   hideConfirm() {
     this.confirmModal.style.display = 'none';
+    this.pendingAction = null;
   }
 
   showHelp() {
@@ -174,11 +192,50 @@ class GameManager {
     this.helpModal.style.display = 'none';
   }
 
+  // やり直すボタン押下時の判定
   handleRestartRequest() {
     if (this.score > 0 || this.hasMoved) {
-      this.showConfirm();
+      this.showConfirm(
+        'やり直しますか？',
+        '現在のスコアと盤面の進行状況が<br>リセットされます。',
+        'やり直す',
+        () => this.initGame()
+      );
     } else {
       this.initGame();
+    }
+  }
+
+  // 盤面変更ボタン押下時の判定（スコア/移動があれば注意書きを表示）
+  handleModeChangeRequest(newSize) {
+    if (newSize === this.size) return;
+
+    if (this.score > 0 || this.hasMoved) {
+      this.showConfirm(
+        '盤面を変更しますか？',
+        `盤面を${newSize}×${newSize}に変更すると、現在のスコアと進行状況が<br>リセットされます。`,
+        '変更する',
+        () => this.changeSize(newSize)
+      );
+    } else {
+      this.changeSize(newSize);
+    }
+  }
+
+  // タイトルへ戻る押下時の判定
+  handleBackToTitleRequest() {
+    if (this.score > 0 || this.hasMoved) {
+      this.showConfirm(
+        'タイトルへ戻りますか？',
+        'タイトルに戻ると、現在のスコアと進行状況が<br>リセットされます。',
+        'もどる',
+        () => {
+          this.initGame();
+          this.showStartScreen();
+        }
+      );
+    } else {
+      this.showStartScreen();
     }
   }
 
@@ -442,7 +499,6 @@ class GameManager {
   }
 
   initEventListeners() {
-    // スタートボタン（クリックとタッチ両対応で即時発火）
     const handleStart = (e) => {
       e.preventDefault();
       this.startGame();
@@ -450,7 +506,6 @@ class GameManager {
     this.startGameBtn.addEventListener('click', handleStart);
     this.startGameBtn.addEventListener('touchend', handleStart);
 
-    // スタート画面のあそびかたボタン
     const handleStartHelp = (e) => {
       e.preventDefault();
       this.showHelp();
@@ -458,7 +513,7 @@ class GameManager {
     this.startHelpBtn.addEventListener('click', handleStartHelp);
     this.startHelpBtn.addEventListener('touchend', handleStartHelp);
 
-    // スタート画面の盤面サイズ変更ボタン
+    // スタート画面のサイズ切り替え
     this.startModeButtons.forEach(btn => {
       const handleMode = (e) => {
         e.preventDefault();
@@ -467,6 +522,9 @@ class GameManager {
       btn.addEventListener('click', handleMode);
       btn.addEventListener('touchend', handleMode);
     });
+
+    // ‹ タイトルへ ボタン
+    this.backToTitleBtn.addEventListener('click', () => this.handleBackToTitleRequest());
 
     // メインゲーム画面のイベント
     this.restartBtn.addEventListener('click', () => this.handleRestartRequest());
@@ -479,10 +537,12 @@ class GameManager {
       if (e.target === this.helpModal) this.hideHelp();
     });
 
+    // 確認モーダル（承認時に保留アクションを実行）
     this.cancelRestartBtn.addEventListener('click', () => this.hideConfirm());
     this.confirmRestartBtn.addEventListener('click', () => {
+      const action = this.pendingAction;
       this.hideConfirm();
-      this.initGame();
+      if (action) action();
     });
     this.confirmModal.addEventListener('click', (e) => {
       if (e.target === this.confirmModal) this.hideConfirm();
@@ -495,9 +555,10 @@ class GameManager {
       this.hideMessage();
     });
 
+    // ゲーム中の盤面サイズ切り替え（確認を挟む）
     this.modeButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        this.changeSize(parseInt(e.target.dataset.size));
+        this.handleModeChangeRequest(parseInt(e.target.dataset.size));
       });
     });
 
