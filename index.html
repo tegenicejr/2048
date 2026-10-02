@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css?v=retry_text">
+  <link rel="stylesheet" href="style.css?v=confirm_modal">
 </head>
 <body>
 
@@ -44,6 +44,7 @@
       <div id="grid-container" class="grid-container"></div>
       <div id="tile-container" class="tile-container"></div>
 
+      <!-- ゲームオーバー / 勝利モーダル -->
       <div id="game-message" class="game-message">
         <p id="game-message-text">Game Over!</p>
         <div class="lower">
@@ -54,8 +55,21 @@
     </div>
   </div>
 
+  <!-- やり直し確認モーダル -->
+  <div id="confirm-modal" class="confirm-overlay">
+    <div class="confirm-card">
+      <div class="confirm-icon">⚠️</div>
+      <div class="confirm-title">やり直しますか？</div>
+      <div class="confirm-desc">現在のスコアと盤面の進行状況がリセットされます。</div>
+      <div class="confirm-actions">
+        <button id="cancel-restart-btn" class="btn">キャンセル</button>
+        <button id="confirm-restart-btn" class="btn primary">やり直す</button>
+      </div>
+    </div>
+  </div>
+
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js?v=retry_text"></script>
+  <script src="game.js?v=confirm_modal"></script>
 </body>
 </html>
