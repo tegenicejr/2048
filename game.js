@@ -1,11 +1,35 @@
+let tileIdCounter = 1;
+
+class Tile {
+  constructor(position, value) {
+    this.x = position.x;
+    this.y = position.y;
+    this.value = value || 2;
+    this.id = tileIdCounter++;
+    this.previousPosition = null;
+    this.mergedInto = null;
+  }
+
+  savePosition() {
+    this.previousPosition = { x: this.x, y: this.y };
+  }
+
+  updatePosition(position) {
+    this.x = position.x;
+    this.y = position.y;
+  }
+}
+
 class GameManager {
   constructor() {
-    this.size = 4;
+    this.size = 4; // デフォルト 4x4
     this.score = 0;
-    this.grid = [];
     this.won = false;
     this.over = false;
+    this.keepPlaying = false; // エンドレス継続フラグ
+    this.tiles = [];
 
+    this.gridContainer = document.getElementById('grid-container');
     this.tileContainer = document.getElementById('tile-container');
     this.scoreDisplay = document.getElementById('score');
     this.bestScoreDisplay = document.getElementById('best-score');
@@ -14,21 +38,41 @@ class GameManager {
     this.messageBox = document.getElementById('game-message');
     this.messageText = document.getElementById('game-message-text');
     this.retryBtn = document.getElementById('retry-button');
+    this.keepPlayingBtn = document.getElementById('keep-playing-button');
+    this.modeButtons = document.querySelectorAll('.mode-btn');
 
+    this.isMoving = false;
     this.initEventListeners();
     this.initGame();
   }
 
-  // 初期化
+  // 盤面サイズ設定とグリッドセルの再構築
+  setupGrid() {
+    const gap = this.size <= 4 ? 10 : 8;
+    this.gridContainer.style.setProperty('--grid-size', this.size);
+    this.gridContainer.style.setProperty('--grid-gap', `${gap}px`);
+    this.gridContainer.innerHTML = '';
+
+    for (let i = 0; i < this.size * this.size; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      this.gridContainer.appendChild(cell);
+    }
+  }
+
   initGame() {
-    this.grid = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+    this.setupGrid();
+    this.tiles = [];
     this.score = 0;
     this.won = false;
     this.over = false;
+    this.keepPlaying = false;
+    this.isMoving = false;
     this.hideMessage();
     StorageManager.clearHistory();
     this.updateScore(0);
-    this.bestScoreDisplay.textContent = StorageManager.getBestScore();
+    this.bestScoreDisplay.textContent = StorageManager.getBestScore(this.size);
+
     this.addRandomTile();
     this.addRandomTile();
     this.render();
@@ -40,183 +84,236 @@ class GameManager {
   }
 
   showMessage(won) {
-    this.messageText.textContent = won ? 'You Win! 2048達成!' : 'Game Over!';
     if (won) {
+      this.messageText.textContent = 'You Win! 2048達成!';
       this.messageBox.classList.add('game-won');
+      this.keepPlayingBtn.style.display = 'inline-block';
     } else {
+      this.messageText.textContent = 'Game Over!';
       this.messageBox.classList.remove('game-won');
+      this.keepPlayingBtn.style.display = 'none';
     }
     this.messageBox.style.display = 'flex';
   }
 
-  // 空きマスにタイル生成
+  getGridState() {
+    const grid = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+    this.tiles.forEach(tile => {
+      grid[tile.y][tile.x] = tile.value;
+    });
+    return grid;
+  }
+
   addRandomTile() {
+    const occupied = new Set(this.tiles.map(t => `${t.x},${t.y}`));
     const emptyCells = [];
-    for (let r = 0; r < this.size; r++) {
-      for (let c = 0; c < this.size; c++) {
-        if (this.grid[r][c] === 0) emptyCells.push({ r, c });
+    for (let x = 0; x < this.size; x++) {
+      for (let y = 0; y < this.size; y++) {
+        if (!occupied.has(`${x},${y}`)) emptyCells.push({ x, y });
       }
     }
     if (emptyCells.length > 0) {
-      const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-      this.grid[r][c] = Math.random() < 0.9 ? 2 : 4;
-      return { r, c };
+      const pos = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      const tile = new Tile(pos, Math.random() < 0.9 ? 2 : 4);
+      tile.isNew = true;
+      this.tiles.push(tile);
     }
-    return null;
   }
 
-  // 画面描画
-  render(mergedCells = [], newCell = null) {
+  triggerHaptic(type = 'light') {
+    if ('vibrate' in navigator) {
+      if (type === 'light') navigator.vibrate(8);
+      else if (type === 'medium') navigator.vibrate([12, 30, 15]);
+      else if (type === 'heavy') navigator.vibrate([30, 50, 40]);
+    }
+  }
+
+  render() {
     this.tileContainer.innerHTML = '';
-    for (let r = 0; r < this.size; r++) {
-      for (let c = 0; c < this.size; c++) {
-        const val = this.grid[r][c];
-        if (val !== 0) {
-          const tile = document.createElement('div');
-          const isSuper = val > 2048;
-          tile.className = `tile tile-${isSuper ? 'super' : val}`;
-          tile.textContent = val;
-          tile.style.top = `calc(${r} * (25% + 3px))`;
-          tile.style.left = `calc(${c} * (25% + 3px))`;
+    const gap = this.size <= 4 ? 10 : 8;
 
-          if (mergedCells.some(m => m.r === r && m.c === c)) {
-            tile.classList.add('tile-merged');
-          } else if (newCell && newCell.r === r && newCell.c === c) {
-            tile.classList.add('tile-new');
-          }
+    this.tiles.forEach(tile => {
+      const el = document.createElement('div');
+      const isSuper = tile.value > 2048;
+      el.className = `tile tile-${isSuper ? 'super' : tile.value}`;
+      el.textContent = tile.value;
 
-          this.tileContainer.appendChild(tile);
-        }
+      // 可変サイズ計算
+      const cellSize = `calc((100% - ${(this.size - 1) * gap}px) / ${this.size})`;
+      el.style.setProperty('--cell-size', cellSize);
+
+      // 文字サイズの微調整（盤面サイズと桁数による自動縮小）
+      let fontSize = 32;
+      if (this.size === 2) fontSize = 48;
+      if (this.size === 5) fontSize = 24;
+      if (this.size === 6) fontSize = 18;
+      if (tile.value >= 128 && this.size >= 4) fontSize = Math.floor(fontSize * 0.8);
+      if (tile.value >= 1024) fontSize = Math.floor(fontSize * 0.7);
+      el.style.setProperty('--tile-font-size', `${fontSize}px`);
+
+      // 物理スライド位置の算出
+      const xCalc = `calc(${tile.x} * (${cellSize} + ${gap}px))`;
+      const yCalc = `calc(${tile.y} * (${cellSize} + ${gap}px))`;
+
+      el.style.setProperty('--x', xCalc);
+      el.style.setProperty('--y', yCalc);
+      el.style.transform = `translate(${xCalc}, ${yCalc})`;
+
+      if (tile.isNew) {
+        el.classList.add('tile-new');
+        tile.isNew = false;
+      } else if (tile.isMerged) {
+        el.classList.add('tile-merged');
+        tile.isMerged = false;
       }
-    }
+
+      this.tileContainer.appendChild(el);
+    });
   }
 
-  updateScore(addScore) {
-    this.score += addScore;
+  updateScore(add) {
+    this.score += add;
     this.scoreDisplay.textContent = this.score;
-    const best = StorageManager.setBestScore(this.score);
+    const best = StorageManager.setBestScore(this.score, this.size);
     this.bestScoreDisplay.textContent = best;
   }
 
-  // 4方向のスライド＆合体
   move(direction) {
-    if (this.over) return;
-
-    const previousGrid = JSON.parse(JSON.stringify(this.grid));
-    const previousScore = this.score;
-
-    let moved = false;
-    let scoreGained = 0;
-    const mergedCells = [];
+    if (this.over || this.isMoving) return;
 
     const vectors = {
-      up: { r: -1, c: 0 },
-      down: { r: 1, c: 0 },
-      left: { r: 0, c: -1 },
-      right: { r: 0, c: 1 }
+      up: { x: 0, y: -1 },
+      down: { x: 0, y: 1 },
+      left: { x: -1, y: 0 },
+      right: { x: 1, y: 0 }
     };
     const vector = vectors[direction];
 
-    const rowOrder = direction === 'down' ? [3, 2, 1, 0] : [0, 1, 2, 3];
-    const colOrder = direction === 'right' ? [3, 2, 1, 0] : [0, 1, 2, 3];
+    const xTraversal = Array.from({ length: this.size }, (_, i) => i);
+    const yTraversal = Array.from({ length: this.size }, (_, i) => i);
+    if (vector.x === 1) xTraversal.reverse();
+    if (vector.y === 1) yTraversal.reverse();
 
-    const mergedTracker = Array(this.size).fill(false).map(() => Array(this.size).fill(false));
+    const previousGrid = this.getGridState();
+    const previousScore = this.score;
 
-    for (const r of rowOrder) {
-      for (const c of colOrder) {
-        if (this.grid[r][c] === 0) continue;
+    this.tiles.forEach(t => t.savePosition());
 
-        let currR = r;
-        let currC = c;
-        const val = this.grid[r][c];
+    let moved = false;
+    let scoreGained = 0;
+    const mergedTracker = new Set();
+    const nextTiles = [];
+
+    xTraversal.forEach(x => {
+      yTraversal.forEach(y => {
+        const tile = this.tiles.find(t => t.x === x && t.y === y);
+        if (!tile) return;
+
+        let currX = x;
+        let currY = y;
 
         while (true) {
-          const nextR = currR + vector.r;
-          const nextC = currC + vector.c;
+          const nextX = currX + vector.x;
+          const nextY = currY + vector.y;
 
-          if (nextR < 0 || nextR >= this.size || nextC < 0 || nextC >= this.size) break;
+          if (nextX < 0 || nextX >= this.size || nextY < 0 || nextY >= this.size) break;
 
-          const nextVal = this.grid[nextR][nextC];
+          const target = nextTiles.find(t => t.x === nextX && t.y === nextY);
 
-          if (nextVal === 0) {
-            this.grid[nextR][nextC] = val;
-            this.grid[currR][currC] = 0;
-            currR = nextR;
-            currC = nextC;
+          if (!target) {
+            currX = nextX;
+            currY = nextY;
+          } else if (target.value === tile.value && !mergedTracker.has(target)) {
+            currX = nextX;
+            currY = nextY;
+            mergedTracker.add(target);
+            target.value *= 2;
+            target.isMerged = true;
+            scoreGained += target.value;
             moved = true;
-          } else if (nextVal === val && !mergedTracker[nextR][nextC]) {
-            this.grid[nextR][nextC] = val * 2;
-            this.grid[currR][currC] = 0;
-            scoreGained += val * 2;
-            mergedTracker[nextR][nextC] = true;
-            mergedCells.push({ r: nextR, c: nextC });
 
-            if (val * 2 === 2048 && !this.won) {
-              this.won = true;
-            }
+            if (target.value === 2048 && !this.won) this.won = true;
 
-            moved = true;
-            break;
+            tile.mergedInto = target;
+            tile.updatePosition({ x: currX, y: currY });
+            return;
           } else {
             break;
           }
         }
-      }
-    }
+
+        if (currX !== x || currY !== y) moved = true;
+        tile.updatePosition({ x: currX, y: currY });
+        nextTiles.push(tile);
+      });
+    });
 
     if (moved) {
-      StorageManager.saveState(previousGrid, previousScore);
-      this.updateScore(scoreGained);
-      const newCell = this.addRandomTile();
-      this.render(mergedCells, newCell);
+      this.isMoving = true;
+      this.tiles = nextTiles;
+      this.render();
 
-      if (typeof sounds !== 'undefined') {
-        if (mergedCells.length > 0) {
-          const maxMergedVal = Math.max(...mergedCells.map(m => this.grid[m.r][m.c]));
-          if (maxMergedVal >= 128) {
-            sounds.playBigMerge();
-          } else {
-            sounds.playMerge(maxMergedVal);
-          }
-        } else {
-          sounds.playMove();
+      if (mergedTracker.size > 0) {
+        this.triggerHaptic('medium');
+        const maxVal = Math.max(...Array.from(mergedTracker).map(t => t.value));
+        if (typeof sounds !== 'undefined') {
+          if (maxVal >= 128) sounds.playBigMerge();
+          else sounds.playMerge(maxVal);
         }
+      } else {
+        this.triggerHaptic('light');
+        if (typeof sounds !== 'undefined') sounds.playMove();
       }
 
-      this.checkGameState();
+      setTimeout(() => {
+        StorageManager.saveState(previousGrid, previousScore);
+        this.updateScore(scoreGained);
+        this.addRandomTile();
+        this.render();
+        this.checkGameState();
+        this.isMoving = false;
+      }, 105);
     }
   }
 
   undo() {
-    if (this.over) return;
+    if (this.over || this.isMoving) return;
     const prevState = StorageManager.popState();
     if (!prevState) return;
-    this.grid = prevState.grid;
+
+    this.tiles = [];
+    for (let y = 0; y < this.size; y++) {
+      for (let x = 0; x < this.size; x++) {
+        const val = prevState.grid[y][x];
+        if (val !== 0) {
+          this.tiles.push(new Tile({ x, y }, val));
+        }
+      }
+    }
     this.score = prevState.score;
     this.scoreDisplay.textContent = this.score;
     this.hideMessage();
     this.render();
   }
 
-  getMaxTile() {
-    return Math.max(...this.grid.flat());
-  }
-
   checkGameState() {
-    if (this.won && !this.messageBox.classList.contains('game-won')) {
+    if (this.won && !this.keepPlaying) {
       this.showMessage(true);
       return;
     }
 
-    for (let r = 0; r < this.size; r++) {
-      for (let c = 0; c < this.size; c++) {
-        if (this.grid[r][c] === 0) return;
-        if (c < this.size - 1 && this.grid[r][c] === this.grid[r][c + 1]) return;
-        if (r < this.size - 1 && this.grid[r][c] === this.grid[r + 1][c]) return;
+    if (this.tiles.length < this.size * this.size) return;
+
+    const grid = this.getGridState();
+    for (let y = 0; y < this.size; y++) {
+      for (let x = 0; x < this.size; x++) {
+        if (x < this.size - 1 && grid[y][x] === grid[y][x + 1]) return;
+        if (y < this.size - 1 && grid[y][x] === grid[y + 1][x]) return;
       }
     }
 
     this.over = true;
+    this.triggerHaptic('heavy');
     if (typeof sounds !== 'undefined') sounds.playGameOver();
     this.showMessage(false);
   }
@@ -225,6 +322,26 @@ class GameManager {
     this.restartBtn.addEventListener('click', () => this.initGame());
     this.retryBtn.addEventListener('click', () => this.initGame());
     this.undoBtn.addEventListener('click', () => this.undo());
+
+    // エンドレス（続ける）ボタン
+    this.keepPlayingBtn.addEventListener('click', () => {
+      this.keepPlaying = true;
+      this.hideMessage();
+    });
+
+    // 盤面サイズ切り替えタブ
+    this.modeButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const newSize = parseInt(e.target.dataset.size);
+        if (newSize === this.size) return;
+
+        this.modeButtons.forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+
+        this.size = newSize;
+        this.initGame();
+      });
+    });
 
     window.addEventListener('keydown', (e) => {
       const map = {
@@ -250,11 +367,8 @@ class GameManager {
 
     window.addEventListener('touchend', (e) => {
       if (!startX || !startY) return;
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
-
-      const diffX = endX - startX;
-      const diffY = endY - startY;
+      const diffX = e.changedTouches[0].clientX - startX;
+      const diffY = e.changedTouches[0].clientY - startY;
       const threshold = 30;
 
       if (Math.max(Math.abs(diffX), Math.abs(diffY)) > threshold) {
