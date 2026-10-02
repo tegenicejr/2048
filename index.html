@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>2048 - Games Club</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="animations.css">
+  <link rel="stylesheet" href="style.css?v=final">
 </head>
 <body>
 
   <div class="game-container">
-    <!-- ヘッダーエリア -->
     <header class="game-header">
       <div class="header-top">
         <a href="https://tegenicejr.github.io/Oh-LOVE-GAMES-CLUBHOUSE/" class="back-link">‹ アソビ大全へ</a>
@@ -28,7 +26,6 @@
       </div>
     </header>
 
-    <!-- 盤面サイズ切り替えセレクター -->
     <div class="mode-selector">
       <button class="mode-btn" data-size="2">2×2</button>
       <button class="mode-btn active" data-size="4">4×4</button>
@@ -36,18 +33,15 @@
       <button class="mode-btn" data-size="6">6×6</button>
     </div>
 
-    <!-- コントロールボタン -->
     <div class="controls">
       <button id="undo-btn" class="btn">1手戻す</button>
       <button id="restart-btn" class="btn primary">やり直す</button>
     </div>
 
-    <!-- 可変ゲーム盤面 -->
     <div class="board-wrapper">
       <div id="grid-container" class="grid-container"></div>
       <div id="tile-container" class="tile-container"></div>
 
-      <!-- ゲームオーバー/クリア用モーダル -->
       <div id="game-message" class="game-message">
         <p id="game-message-text">Game Over!</p>
         <div class="lower">
@@ -60,6 +54,6 @@
 
   <script src="audio.js"></script>
   <script src="storage.js"></script>
-  <script src="game.js"></script>
+  <script src="game.js?v=final"></script>
 </body>
 </html>
