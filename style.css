@@ -1,3 +1,165 @@
+/* リセット & スマホの余計な挙動防止 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+body {
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+  background-color: #faf8ef;
+  color: #776e65;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 440px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ヘッダーエリア */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.header-top {
+  display: flex;
+  flex-direction: column;
+}
+
+.back-link {
+  font-size: 13px;
+  color: #a39485;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  transition: color 0.2s;
+}
+
+.back-link:active {
+  color: #776e65;
+}
+
+.title {
+  font-size: 64px;
+  font-weight: 800;
+  color: #776e65;
+  line-height: 0.85;
+  letter-spacing: -2px;
+}
+
+/* スコアボックス（角丸・高級感のある配色） */
+.scores-container {
+  display: flex;
+  gap: 8px;
+}
+
+.score-box {
+  background: #bbada0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 72px;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.score-box .label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #eee4da;
+  letter-spacing: 0.8px;
+}
+
+.score-box .value {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* コントロールボタン群 */
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  background: #8f7a66;
+  color: #f9f6f2;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #736353;
+  transition: transform 0.05s, box-shadow 0.05s;
+}
+
+.btn.primary {
+  background: #f2613f;
+  box-shadow: 0 3px 0 #c84628;
+}
+
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 4x4 盤面ボード本体（重厚なトレイ感） */
+.board-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #bbada0;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 6px 12px rgba(187, 173, 160, 0.3), inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 空きマスのグリッド背景 */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-cell {
+  background-color: rgba(238, 228, 218, 0.4);
+  border-radius: 6px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* 動くタイルが配置される絶対位置レイヤー */
+.tile-container {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  pointer-events: none;
+}
+
 /* ゲームオーバー・勝利モーダル */
 .game-message {
   display: none;
