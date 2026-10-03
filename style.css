@@ -10,10 +10,13 @@
 }
 
 html, body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
-  height: 100vh;
-  height: 100dvh;
   background-color: #fbf9f4;
   overflow: hidden;
   touch-action: none;
@@ -24,16 +27,8 @@ body {
   background: radial-gradient(circle at 50% 20%, #fbf9f4 0%, #ece5d8 100%);
   color: #776e65;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  
-  /* 上下左右のノッチ・バー用セーフエリア */
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  align-items: stretch;
 }
 
 button, a {
@@ -54,8 +49,6 @@ button, a {
   bottom: 0;
   width: 100%;
   height: 100%;
-  height: 100vh;
-  height: 100dvh;
   background: radial-gradient(circle at 50% 25%, #fffdfa 0%, #ebe3d5 100%);
   z-index: 5000;
   display: flex;
@@ -223,25 +216,15 @@ button, a {
   width: 100%;
   max-width: 440px;
   height: 100%;
-  height: 100vh;
-  height: 100dvh;
   padding: 12px 16px;
-  padding-top: max(12px, env(safe-area-inset-top, 12px));
-  padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  /* ノッチとホームバーのセーフエリアを確保 */
+  padding-top: max(16px, env(safe-area-inset-top, 16px));
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
   margin: 0 auto;
-}
-
-/* ホーム画面起動（PWA / standalone）時の最適化 */
-@media (display-mode: standalone) {
-  .game-container {
-    padding-top: max(20px, env(safe-area-inset-top, 20px));
-    padding-bottom: max(32px, env(safe-area-inset-bottom, 32px));
-    justify-content: space-evenly;
-  }
 }
 
 .game-header {
@@ -477,8 +460,8 @@ button, a {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  max-height: min(420px, calc(100vh - 280px), calc(100dvh - 280px));
-  margin: 0 auto;
+  max-height: calc(100% - 250px);
+  margin: auto 0;
   background: linear-gradient(135deg, #bcaea1 0%, #ab9d8f 100%);
   border-radius: 12px;
   padding: 10px;
@@ -732,7 +715,6 @@ button, a {
   width: 100%;
   max-width: 380px;
   max-height: 85vh;
-  max-height: 85dvh;
   border-radius: 16px;
   padding: 18px 18px 20px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
