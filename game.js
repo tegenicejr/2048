@@ -586,12 +586,20 @@ class GameManager {
     this.settingsModal.style.display = 'none';
   }
 
-  showConfirm(title, desc, confirmText, action) {
+  // 第5引数 showIcon (デフォルト: true) を追加
+  showConfirm(title, desc, confirmText, action, showIcon = true) {
     this.confirmTitle.textContent = title;
     this.confirmDesc.innerHTML = desc;
     this.confirmRestartBtn.textContent = confirmText;
     this.cancelRestartBtn.textContent = I18N[this.currentLang].cancel;
     this.pendingAction = action;
+
+    // アイコンの表示・非表示を切り替え
+    const iconEl = this.confirmModal.querySelector('.confirm-icon');
+    if (iconEl) {
+      iconEl.style.display = showIcon ? 'block' : 'none';
+    }
+
     this.confirmModal.style.display = 'flex';
   }
 
@@ -615,7 +623,8 @@ class GameManager {
         t.confirmRestartTitle,
         t.confirmRestartDesc,
         t.restart,
-        () => this.initGame()
+        () => this.initGame(),
+        true
       );
     } else {
       this.initGame();
@@ -631,7 +640,8 @@ class GameManager {
         t.confirmModeTitle,
         t.confirmModeDesc(newSize),
         t.confirmBtn,
-        () => this.changeSize(newSize)
+        () => this.changeSize(newSize),
+        true
       );
     } else {
       this.changeSize(newSize);
@@ -648,7 +658,8 @@ class GameManager {
         () => {
           this.autoSave();
           this.showStartScreen();
-        }
+        },
+        false // ★タイトルへ戻るときだけ「⚠️」を非表示にする
       );
     } else {
       this.showStartScreen();
@@ -672,7 +683,8 @@ class GameManager {
         this.updateSettingsUI();
         this.initGame();
         this.showStartScreen();
-      }
+      },
+      true
     );
   }
 
