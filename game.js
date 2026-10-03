@@ -68,7 +68,7 @@ const I18N = {
     confirmModeTitle: '盤面を変更しますか？',
     confirmModeDesc: (size) => `盤面を${size}×${size}に変更すると、<br>現在のスコアと進行状況がリセットされます。`,
     confirmTitleBackTitle: 'タイトルへ戻りますか？',
-    confirmTitleBackDesc: 'タイトルに戻ると、<br>現在の進行状況は自動保存されます。',
+    confirmTitleBackDesc: '現在の進行状況は自動保存されます。',
     confirmResetDataTitle: 'データを初期化しますか？',
     confirmResetDataDesc: 'ハイスコアやコレクションの解放状況がすべて消去されます。元には戻せません。',
     confirmBtn: '変更する',
