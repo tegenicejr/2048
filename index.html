@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>2048 - Games Clubhouse</title>
+  <meta name="description" content="Merge the tiles to reach 2048! High quality Web Game.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- 上下のバーの裏まで全画面描画させる設定 -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- スタート画面（タイトル画面） -->
+  <div id="start-screen" class="start-screen">
+    <a href="../" id="start-top-back-link" class="start-top-back-link">‹ Back to Clubhouse</a>
+    
+    <div class="start-content">
+      <div class="start-header-badge">GAMES CLUBHOUSE</div>
+      <div class="start-hero-tile">2048</div>
+      <h1 class="start-title">2048</h1>
+      <p id="start-subtitle" class="start-subtitle">Merge the tiles to reach the legend.</p>
+
+      <div class="start-mode-container">
+        <span id="start-mode-label" class="start-mode-label">Select Board Size</span>
+        <div class="start-mode-selector">
+          <button class="start-mode-btn" data-size="2">2×2</button>
+          <button class="start-mode-btn" data-size="3">3×3</button>
+          <button class="start-mode-btn active" data-size="4">4×4</button>
+          <button class="start-mode-btn" data-size="5">5×5</button>
+          <button class="start-mode-btn" data-size="6">6×6</button>
+        </div>
+      </div>
+
+      <div class="start-actions">
+        <!-- 続きから遊ぶボタン（セーブデータがある場合に上部に表示） -->
+        <button id="start-continue-btn" class="btn primary start-play-btn" style="display: none;">Resume</button>
+        <!-- ゲームスタートボタン -->
+        <button id="start-game-btn" class="btn primary start-play-btn">Start Game</button>
+        
+        <div class="start-btn-row">
+          <button id="start-help-btn" class="btn sub-btn start-sub-btn">How to Play</button>
+          <button id="collection-btn" class="btn sub-btn start-sub-btn">Collection</button>
+          <button id="settings-btn" class="btn sub-btn start-sub-btn">⚙️️ Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- メインゲーム画面 -->
+  <main class="game-container">
+    <header class="game-header">
+      <div class="header-nav-bar">
+        <button id="back-to-title-btn" class="back-link">‹ Title</button>
+        <button id="sound-toggle-btn" class="sound-toggle-btn" aria-label="Toggle Sound">🔊</button>
+      </div>
+
+      <div class="header-main-bar">
+        <div class="title-with-panel">
+          <h1 class="title">2048</h1>
+          <div class="header-tile-panel">2048</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="score-box">
+            <span id="label-score" class="label">SCORE</span>
+            <span id="score" class="value">0</span>
+          </div>
+          <div class="score-box">
+            <span id="label-best" class="label">BEST</span>
+            <span id="best-score" class="value">0</span>
+          </div>
+          <div class="score-box sub-box">
+            <span id="label-moves" class="label">MOVES</span>
+            <span id="moves" class="value">0</span>
+          </div>
+          <div class="score-box sub-box">
+            <span id="label-time" class="label">TIME</span>
+            <span id="time" class="value">00:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-selector">
+        <button class="mode-btn" data-size="2">2×2</button>
+        <button class="mode-btn" data-size="3">3×3</button>
+        <button class="mode-btn active" data-size="4">4×4</button>
+        <button class="mode-btn" data-size="5">5×5</button>
+        <button class="mode-btn" data-size="6">6×6</button>
+      </div>
+
+      <div class="controls">
+        <button id="how-to-play-btn" class="btn sub-btn">How to Play</button>
+        <button id="undo-btn" class="btn sub-btn">Undo</button>
+        <button id="restart-btn" class="btn primary">Restart</button>
+      </div>
+    </header>
+
+    <div class="board-wrapper">
+      <div id="grid-container" class="grid-container"></div>
+      <div id="tile-container" class="tile-container"></div>
+
+      <!-- ゲームオーバー / クリア表示 -->
+      <div id="game-message" class="game-message">
+        <p id="game-message-text">Game Over!</p>
+        <div id="message-stats-summary" class="message-stats-summary"></div>
+        <div class="lower">
+          <button id="share-score-button" class="btn share-btn">Share on X</button>
+          <button id="keep-playing-button" class="btn primary">Keep Going</button>
+          <button id="retry-button" class="btn primary">Retry</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 確認モーダル -->
+  <div id="confirm-modal" class="confirm-overlay" style="z-index: 10005;">
+    <div class="confirm-card">
+      <div id="confirm-title" class="confirm-title">Restart Game?</div>
+      <div id="confirm-desc" class="confirm-desc">
+        Your current score and board progress will be reset.
+      </div>
+      <div class="confirm-actions">
+        <button id="cancel-restart-btn" class="btn">Cancel</button>
+        <button id="confirm-restart-btn" class="btn primary">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- あそびかたモーダル -->
+  <div id="help-modal" class="confirm-overlay">
+    <div class="help-card">
+      <div class="help-header">
+        <h2 id="help-modal-title" class="help-title">How to Play</h2>
+        <button id="close-help-btn" class="help-close-btn">&times;</button>
+      </div>
+      <div class="help-steps">
+        <div class="help-item">
+          <div class="help-badge">1</div>
+          <div class="help-visual">
+            <span class="swipe-arrow">⇄ ⇅</span>
+          </div>
+          <div class="help-info">
+            <strong id="help-step1-title" class="help-item-title">Swipe to Move</strong>
+            <p id="help-step1-desc" class="help-item-desc">Swipe in any direction (or use Arrow keys on PC) to slide all tiles.</p>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-badge">2</div>
+          <div class="help-visual merge-demo">
+            <span class="demo-tile t-2">2</span>
+            <span>+</span>
+            <span class="demo-tile t-2">2</span>
+            <span>=</span>
+            <span class="demo-tile t-4">4</span>
+          </div>
+          <div class="help-info">
+            <strong id="help-step2-title" class="help-item-title">Merge Tiles</strong>
+            <p id="help-step2-desc" class="help-item-desc">When two tiles with the same number touch, they merge into one with double value.</p>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-badge">3</div>
+          <div class="help-visual">
+            <span class="demo-tile t-2048">2048</span>
+          </div>
+          <div class="help-info">
+            <strong id="help-step3-title" class="help-item-title">Reach 2048!</strong>
+            <p id="help-step3-desc" class="help-item-desc">When no moves are possible, game is over. Reach 2048 and continue into endless mode!</p>
+          </div>
+        </div>
+      </div>
+      <button id="got-it-btn" class="btn primary help-ok-btn">Got It!</button>
+    </div>
+  </div>
+
+  <!-- タイルコレクションモーダル -->
+  <div id="collection-modal" class="confirm-overlay">
+    <div class="collection-card">
+      <div class="collection-header">
+        <div>
+          <h2 id="collection-modal-title" class="collection-title">Tile Collection</h2>
+          <p id="collection-modal-desc" class="collection-desc">Tiles reached during gameplay will be unlocked here.</p>
+        </div>
+        <button id="close-collection-btn" class="help-close-btn">&times;</button>
+      </div>
+      <div id="collection-grid" class="collection-grid"></div>
+      <button id="close-collection-bottom-btn" class="btn sub-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div id="settings-modal" class="confirm-overlay">
+    <div class="settings-card">
+      <div class="settings-header">
+        <h2 id="settings-title" class="settings-title">⚙️ Settings</h2>
+        <button id="close-settings-btn" class="help-close-btn">&times;</button>
+      </div>
+      <div class="settings-list">
+        <div class="settings-row">
+          <span id="setting-lbl-lang" class="settings-label">Language</span>
+          <select id="lang-select" class="lang-select">
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="ko">한국어</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="pt">Português</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <span id="setting-lbl-sound" class="settings-label">Sound FX</span>
+          <div class="toggle-group">
+            <button id="sound-on-btn" class="toggle-btn active">ON</button>
+            <button id="sound-off-btn" class="toggle-btn">OFF</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span id="setting-lbl-vibration" class="settings-label">Vibration</span>
+          <div class="toggle-group">
+            <button id="vib-on-btn" class="toggle-btn active">ON</button>
+            <button id="vib-off-btn" class="toggle-btn">OFF</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span id="setting-lbl-speed" class="settings-label">Speed</span>
+          <div class="toggle-group">
+            <button id="speed-normal-btn" class="toggle-btn active">Normal</button>
+            <button id="speed-fast-btn" class="toggle-btn">Fast</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <button id="reset-data-btn" class="btn danger-btn" style="width: 100%;">Reset Data</button>
+        </div>
+      </div>
+      <div class="settings-bottom-actions">
+        <button id="close-settings-bottom-btn" class="btn sub-btn" style="width: 100%;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="storage.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
